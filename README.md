@@ -1,6 +1,6 @@
 # 🟢 KickChat Client
 
-## **What is Kick Chat Wrapper ?**
+## **What is Kick Chat Client ?**
 
 The KickChat Client is a small, TypeScript-based wrapper for [kick.com](https://kick.com)'s chat system. It uses WebSocket connections to communicate with the chat servers and can automatically create new connections when the current ones reach their maximum capacity.
 
