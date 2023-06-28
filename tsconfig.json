@@ -7,7 +7,35 @@
     "sourceMap": true,
     "outDir": "dist",
     "types": ["node"],
-    "rootDir": "./src/"
+    "rootDir": "./src/",
+    "allowJs": true,
+    "checkJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    // "esModuleInterop": true,
+    // "module": "esnext",
+    // "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "noUncheckedIndexedAccess": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "strictNullChecks": true
   },
-  "lib": ["es2015"]
+  "include": [
+    // ".eslintrc.js",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.cjs",
+    "**/*.mjs"
+    // "prettier.config.cjs"
+  ],
+  "exclude": ["node_modules"],
+  "lib": ["esnext"]
 }

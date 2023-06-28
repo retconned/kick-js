@@ -1,7 +1,8 @@
-import { onMessage } from "./handlers/onMessage";
-import WebSocket from "ws";
 import { URLSearchParams } from "url";
 import { v4 as uuidv4 } from "uuid";
+import WebSocket from "ws";
+
+import { onMessage } from "./handlers/onMessage";
 
 const baseUrl = "wss://ws-us2.pusher.com/app/eb1d5f283081a78b932c";
 const urlParams = new URLSearchParams({
@@ -23,10 +24,7 @@ const connectToChannels = async (socket: WebSocket, channels: string[]) => {
   channels.forEach(async (channel) => {
     const connect = JSON.stringify({
       event: "pusher:subscribe",
-      data: {
-        auth: "",
-        channel: `${channel}`,
-      },
+      data: { auth: "", channel: `${channel}` },
     });
     await socket.send(connect);
     console.log(`connected to ${channel}`);
@@ -97,6 +95,6 @@ const connectToDynamicChannels = async (channels: string[]) => {
 };
 
 // Channels to connect to, can be fetched from DB & such
-const channels = ["chatrooms.715", "chatrooms.32806"];
+const channels = ["chatrooms.32806.v2", "chatrooms.668.v2"];
 
 connectToDynamicChannels(channels);

@@ -9,22 +9,50 @@ const calculateAverage = () => {
   const numEvents = responseEvents.length;
   const average = numEvents / (THIRTY_SECONDS / 1000);
   console.log(
-    `Average response events per second: ${average.toFixed(
+    `🌟 Average response events per second: ${average.toFixed(
       2
     )} is the past ${DURATION} SECONDS`
   );
   responseEvents = [];
 };
 
+interface MessageEvent {
+  event: string;
+  data: string;
+  channel: string;
+}
+
+interface MessageData {
+  id: string;
+  chatroom_id: number;
+  content: string;
+  type: string;
+  created_at: string;
+  sender: {
+    id: number;
+    username: string;
+    slug: string;
+    identity: { color: string; badges: any };
+  };
+  metadata?: {
+    original_sender: { id: string; username: string };
+    original_message: {
+      id: string;
+      content: string;
+    };
+  };
+}
+
 // Parses chat message from WS events to read-able format without emotes
 const messageParser = (message: string) => {
-  const messageEventJSON = JSON.parse(message) as any;
-  if (messageEventJSON.event === "App\\Events\\ChatMessageSentEvent") {
-    const data = JSON.parse(messageEventJSON.data) as any;
+  const messageEventJSON: MessageEvent = JSON.parse(message);
 
-    const message = data.message.message;
-    const channelId = data.message.chatroom_id;
-    const username = data.user.username;
+  if (messageEventJSON.event === "App\\Events\\ChatMessageEvent") {
+    const data: MessageData = JSON.parse(messageEventJSON.data);
+
+    const message = data.content;
+    const channelId = data.chatroom_id;
+    const username = data.sender.username;
 
     // this regex detects emotes and removes the extra stuff only leaves the emote name/string
     const emoteRegex = /\[emote:\d+:[^\]]+\]/g;
@@ -34,7 +62,12 @@ const messageParser = (message: string) => {
     try {
       // WARNING: this sometimes breaks, my guess is probably receiving gifted sub event
       if (message.match(emoteRegex)) {
-        const processedMsg = message.replace(emoteRegex, (match: string) => {
+        // const processedMsg = message.replace(emoteRegex)
+        // emoteRegex, (match: string | undefined) => {
+        //   const parts = match.substring(7, match.length - 1).split(":")
+        //   return parts[1]
+        // }
+        const processedMsg = message.replace(emoteRegex, (match: any) => {
           const parts = match.substring(7, match.length - 1).split(":");
           return parts[1];
         });
@@ -59,8 +92,8 @@ export const onMessage = (messageEvent: WebSocket.Data) => {
 };
 
 function eventCalculation(message: string) {
-  const messageJSON = JSON.parse(message.toString());
-  if (messageJSON.event === "App\\Events\\ChatMessageSentEvent") {
+  const messageEventJSON: MessageEvent = JSON.parse(message);
+  if (messageEventJSON.event === "App\\Events\\ChatMessageEvent") {
     responseEvents.push(1);
   }
 }
