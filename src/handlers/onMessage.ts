@@ -1,19 +1,29 @@
 import WebSocket from "ws";
 
-let responseEvents: number[] = [];
+let responseEvents: { [channelId: string]: number } = {};
 let intervalId: NodeJS.Timeout;
 const DURATION = 10; //seconds
 const THIRTY_SECONDS = DURATION * 1000; // in milliseconds
 
 const calculateAverage = () => {
-  const numEvents = responseEvents.length;
-  const average = numEvents / (THIRTY_SECONDS / 1000);
-  console.log(
-    `🌟 Average response events per second: ${average.toFixed(
-      2
-    )} is the past ${DURATION} SECONDS`
-  );
-  responseEvents = [];
+  const averagePerChannel: { [channelId: string]: number } = {};
+
+  for (const channelId in responseEvents) {
+    const numEvents = responseEvents[channelId];
+    const average = numEvents! / (THIRTY_SECONDS / 1000);
+    averagePerChannel[channelId] = average;
+  }
+
+  console.log(`🌟 Average response events per second per channel:`);
+  for (const channelId in averagePerChannel) {
+    console.log(
+      `🌟 Channel ${channelId}: ${averagePerChannel[channelId]!.toFixed(
+        2
+      )} in the past ${DURATION} SECONDS`
+    );
+  }
+
+  responseEvents = {};
 };
 
 interface MessageEvent {
@@ -94,6 +104,7 @@ export const onMessage = (messageEvent: WebSocket.Data) => {
 function eventCalculation(message: string) {
   const messageEventJSON: MessageEvent = JSON.parse(message);
   if (messageEventJSON.event === "App\\Events\\ChatMessageEvent") {
-    responseEvents.push(1);
+    const channelId = messageEventJSON.channel;
+    responseEvents[channelId] = (responseEvents[channelId] || 0) + 1;
   }
 }
