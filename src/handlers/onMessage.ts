@@ -11,12 +11,8 @@ const THIRTY_SECONDS = DURATION * 1000; // in milliseconds
 
 const calculateAverage = () => {
   const averagePerChannel: { [channelId: string]: number } = {};
-
-  // console.log(averagePerChannel);
-
   // this needs to be changed to display channel name instead chatroom id
   for (const channelId in responseEvents) {
-    // console.log(channelId);
     const numEvents = responseEvents[channelId];
     const average = numEvents! / (THIRTY_SECONDS / 1000);
     averagePerChannel[channelId] = average;
@@ -24,15 +20,12 @@ const calculateAverage = () => {
 
   for (const channelId in averagePerChannel) {
     const channelName = runtimeChannelData.get(Number(channelId.split(".")[1]));
-
-    // console.log();
     console.log(
       `🌟 Messages in #${channelName}: ${averagePerChannel[channelId]!.toFixed(
         2
       )} in the past ${DURATION} SECONDS`
     );
   }
-
   responseEvents = {};
 };
 
@@ -46,9 +39,8 @@ const messageParser = (message: string) => {
     const username = data.sender.username;
     // this regex detects emotes and removes the extra stuff only leaves the emote name/string
     const emoteRegex = /\[emote:\d+:[^\]]+\]/g;
-
-    // this is only to display chat events in the command line
     const channelName = runtimeChannelData.get(channelId);
+    // this is only to display chat events in the command line
     try {
       // WARNING: this sometimes breaks, my guess is probably receiving gifted sub event
       if (message.match(emoteRegex)) {

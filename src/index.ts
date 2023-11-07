@@ -92,11 +92,9 @@ const connectToDynamicChannels = async (channels: number[]) => {
   }
 };
 
-const channelsNames = ["buddha", "xqc", "iceposeidon", "zherka"];
-
 const client = async (channels: string[]) => {
   const chatroomIds = await getChatroomId(channels);
   connectToDynamicChannels(chatroomIds);
 };
 
-client(["buddha", "xqc", "iceposeidon", "zherka"]);
+client(["buddha", "xqc", "adinross"]);
