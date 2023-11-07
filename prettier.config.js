@@ -29,6 +29,6 @@ const config = {
   importOrderMergeDuplicateImports: true,
   importOrderCombineTypeAndValueImports: true,
   plugins: [require.resolve("@ianvs/prettier-plugin-sort-imports")],
-}
+};
 
-module.exports = config
+module.exports = config;

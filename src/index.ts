@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import WebSocket from "ws";
 
 import { onMessage } from "./handlers/onMessage";
+import { getChatroomId, runtimeChannelData } from "./utils";
 
 const baseUrl = "wss://ws-us2.pusher.com/app/eb1d5f283081a78b932c";
 const urlParams = new URLSearchParams({
@@ -11,30 +12,28 @@ const urlParams = new URLSearchParams({
   version: "7.4.0",
   flash: "false",
 });
-
 const url = `${baseUrl}?${urlParams.toString()}`;
 
 // limit max channels per socket (depends on events per sec received )
 const maxChannelsPerSocket = 10;
-
 let activeSockets: WebSocket[] = [];
 
 // Function to connect to channels on a given WebSocket connection
-const connectToChannels = async (socket: WebSocket, channels: string[]) => {
+const connectToChannels = async (socket: WebSocket, channels: any[]) => {
   channels.forEach(async (channel) => {
     const connect = JSON.stringify({
       event: "pusher:subscribe",
-      data: { auth: "", channel: `${channel}` },
+      data: { auth: "", channel: `chatrooms.${channel}.v2` },
     });
     await socket.send(connect);
-    console.log(`connected to ${channel}`);
+    const channelName = runtimeChannelData.get(channel);
+    console.log(`connected to #${channelName}`);
   });
 };
 
 // Function to create a new WebSocket connection and connect to channels
-const createNewSocket = async (channels: string[]) => {
+const createNewSocket = async (channels: number[]) => {
   const socket = new WebSocket(url);
-
   const id = uuidv4();
   socket.on("open", () => {
     console.log(`Connected to socket server ${id}`);
@@ -43,7 +42,6 @@ const createNewSocket = async (channels: string[]) => {
   });
   socket.on("message", (data: WebSocket.Data) => {
     const messageEvent = data.toString();
-
     onMessage(messageEvent);
   });
   socket.on("close", () => {
@@ -65,7 +63,7 @@ const countConnectedChannels = (socket: WebSocket): number => {
 };
 
 // Function to handle connecting to channels on active WebSocket connections or create a new WebSocket if needed
-const connectToDynamicChannels = async (channels: string[]) => {
+const connectToDynamicChannels = async (channels: number[]) => {
   console.log(`Connecting to ${channels.length} channels...`);
   activeSockets.forEach((socket) => {
     const connectedChannelCount = countConnectedChannels(socket);
@@ -94,7 +92,11 @@ const connectToDynamicChannels = async (channels: string[]) => {
   }
 };
 
-// Channels to connect to, can be fetched from DB & such
-const channels = ["chatrooms.32806.v2", "chatrooms.668.v2"];
+const channelsNames = ["buddha", "xqc", "iceposeidon", "zherka"];
 
-connectToDynamicChannels(channels);
+const client = async (channels: string[]) => {
+  const chatroomIds = await getChatroomId(channels);
+  connectToDynamicChannels(chatroomIds);
+};
+
+client(["buddha", "xqc", "iceposeidon", "zherka"]);
