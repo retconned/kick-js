@@ -36,6 +36,6 @@ If you're looking to build a chat bot or other chat-based applications, the Kick
 
 # R&D Notes
 
-- Querying chatroom IDs from the current unofficial public API requires IP whitelisting.
+- Querying chatroom IDs from the current unofficial public API endpoint requires bypassing cloudflare.
 - Sending messages, replies, and reactions also require IP whitelisting.
-- There is currently no official API from the Kick team, and attempting to access the public endpoint will mostly result in receiving 403 errors.
+- There is currently no official API from the Kick team, and attempting to access the public endpoint will mostly result in receiving 403 errors or cloudflare.
