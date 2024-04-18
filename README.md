@@ -46,6 +46,3 @@ If you're looking to build a chat bot or other chat-based applications, the Kick
 
 - Implement sending messages, replies & reactions.
 
-```
-
-```
