@@ -36,6 +36,16 @@ If you're looking to build a chat bot or other chat-based applications, the Kick
 
 # R&D Notes
 
-- Querying chatroom IDs from the current unofficial public API endpoint requires bypassing cloudflare.
-- Sending messages, replies, and reactions also require IP whitelisting.
-- There is currently no official API from the Kick team, and attempting to access the public endpoint will mostly result in receiving 403 errors or cloudflare.
+- Sending messages, replies, and reactions are now possible via unofficial v2 API endpoints & require x-csrf-token & other headers.
+
+- There is currently no official API documentations from the Kick team, and attempting to access the public endpoint will mostly result in 403 or cloudflare related errors.
+
+# Future Todos
+
+- Add role-based access control to the chat features (e.g. moderation actions, pinning messages, etc.)
+
+- Implement sending messages, replies & reactions.
+
+```
+
+```
