@@ -14,9 +14,6 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
-    // "esModuleInterop": true,
-    // "module": "esnext",
-    // "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
@@ -28,14 +25,7 @@
     },
     "strictNullChecks": true
   },
-  "include": [
-    // ".eslintrc.js",
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.cjs",
-    "**/*.mjs"
-    // "prettier.config.cjs"
-  ],
+  "include": ["**/*.ts", "**/*.tsx", "**/*.cjs", "**/*.mjs"],
   "exclude": ["node_modules"],
   "lib": ["esnext"]
 }

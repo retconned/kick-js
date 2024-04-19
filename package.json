@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon src/index.ts",
     "prd": "node dist/index.js",
-    "build": "tsc -p .",
+    "build": "tsc -p . --noEmit false",
     "prd:clean": "rm -rf dist"
   },
   "dependencies": {
