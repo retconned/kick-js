@@ -3,7 +3,6 @@ import StealthPlugin from "puppeteer-extra-plugin-stealth";
 
 import { KickChannelInfo } from "@/types/channels";
 
-// this is a runtime solution since you should be persisting this data in db
 export const runtimeChannelData = new Map<number, string>();
 
 export const getChannelData = async (channel: string) => {
@@ -34,4 +33,16 @@ export const getChatroomId = async (channels: string[]) => {
     chatroomIds.push(chatRoomId);
   }
   return chatroomIds;
+};
+
+export const getChannelIdRealtime = (
+  map: Map<number, string>,
+  channelName: string
+): number | undefined => {
+  for (let [key, val] of map.entries()) {
+    if (val === channelName) {
+      return key;
+    }
+  }
+  return undefined;
 };
