@@ -1,7 +1,8 @@
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 
-import { KickChannelInfo } from "@/types/channels";
+import { commandPrefix } from "../handlers/onMessage";
+import { KickChannelInfo } from "../types/channels";
 
 export const runtimeChannelData = new Map<number, string>();
 
@@ -45,4 +46,11 @@ export const getChannelIdRealtime = (
     }
   }
   return undefined;
+};
+
+export const isCommand = (message: string) => {
+  if (message && message.startsWith(commandPrefix)) {
+    return true;
+  }
+  return false;
 };

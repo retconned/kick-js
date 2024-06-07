@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import WebSocket from "ws";
 
 import { onMessage } from "./handlers/onMessage";
-import { getChatroomId, runtimeChannelData } from "./utils";
+import { getChatroomId, runtimeChannelData } from "./utils/utils";
 
 const baseUrl = "wss://ws-us2.pusher.com/app/eb1d5f283081a78b932c";
 const urlParams = new URLSearchParams({
