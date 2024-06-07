@@ -30,7 +30,7 @@ export const sendMessage = async (
 
     if (axiosRequest.status === 200) {
       console.log(
-        `✅ SUCCESFULLY SENT A MESSAGE BACK - ${channelId}: ${messageContent}`
+        `✅ SUCCESSFULLY SENT A MESSAGE BACK - ${channelId}: ${messageContent}`
       );
     } else {
       console.log(

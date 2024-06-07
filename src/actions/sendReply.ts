@@ -46,7 +46,7 @@ export const sendReply = async ({
 
     if (axiosRequest.status === 200) {
       console.log(
-        `✅ SUCCESFULLY SENT A REPLY BACK - ${channelId}: ${replyContent}`
+        `✅ SUCCESSFULLY SENT A REPLY BACK - ${channelId}: ${replyContent}`
       );
     } else {
       console.log(
