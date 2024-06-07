@@ -34,7 +34,7 @@ If you're looking to start building a chat bot or other chat-based applications,
    cp .env.example .env
    ```
 
-   - send a message using the website and grab necessary headers from the request in the network tab in your browser toi match the axios request in codebase `../src/handlers/sendMessage.ts` and fill the `.env` file with the values.
+   - send a message using the website and grab necessary headers from the request in the network tab of your browser to match the axios request in codebase `../src/actions/sendMessage.ts` and fill your `.env` file with the values.
 
 5. Run the app locally
 
@@ -44,10 +44,15 @@ If you're looking to start building a chat bot or other chat-based applications,
 
 # Chnagelog
 
+### v0.3.0
+
+- Added support for replying to messages.
+- Improved project structure, cleaner code.
+
 ### v0.2.0
 
-- Added support for sending messages
-- Added support for chat commands
+- Added support for sending messages.
+- Added support for chat commands.
 
 # R&D Notes
 
