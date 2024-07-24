@@ -42,7 +42,7 @@ If you're looking to start building a chat bot or other chat-based applications,
    pnpm dev
    ```
 
-# Chnagelog
+# Changelog
 
 ### v0.3.0
 
