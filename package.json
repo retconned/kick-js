@@ -1,0 +1,32 @@
+{
+  "name": "kickbot-sdk",
+  "version": "0.1.0",
+  "description": "A demo package for Total TypeScript",
+  "keywords": [
+    "demo",
+    "typescript"
+  ],
+  "homepage": "https://github.com/retconned/kickbot-sdk",
+  "bugs": {
+    "url": "https://github.com/retconned/kickbot-sdk/issues"
+  },
+  "author": "retconned <retcnned@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/retconned/kickbot-sdk.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "format": "prettier --write .",
+    "ci": "npm run build"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3",
+    "typescript": "^5.5.4"
+  }
+}
