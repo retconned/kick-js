@@ -17,19 +17,10 @@
 
     /* If transpiling with TypeScript: */
     "module": "Preserve",
-    // "outDir": "dist",
-    // "rootDir": "src",
-    // "sourceMap": true,
-
-    /* AND if you're building for a library: */
-    // "declaration": true,
-
-    /* AND if you're building for a library in a monorepo: */
-    // "declarationMap": true,
 
     /* might be deleted later */
 
-    "lib": ["es2022"],
+    // "lib": ["es2022"],
 
     /* This is cause tsup is enabled */
     "noEmit": true
