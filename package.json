@@ -1,7 +1,7 @@
 {
   "name": "kickbot-sdk",
   "version": "0.1.1",
-  "description": "A demo package for Total TypeScript",
+  "description": "A typescript bot sdk for kick.com",
   "keywords": [
     "demo",
     "typescript"
