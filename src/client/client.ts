@@ -88,46 +88,45 @@ export const createClient = (
   };
 
   // TODO: Implement authentication, this is just a placeholder
-  // const login = async (credentials: { token: string; cookies: string }) => {
-  //   token = credentials.token;
-  //   cookies = credentials.cookies;
+  const login = async (credentials: { token: string; cookies: string }) => {
+    token = credentials.token;
+    cookies = credentials.cookies;
 
-  //   console.log("Logged in successfully");
-  // };
+    console.log("Logged in successfully as : ", token);
+  };
 
   const sendMessage = async (messageContent: string) => {
     if (!token || !cookies || !channelInfo) {
       throw new Error("Not logged in or channel info not available");
     }
-    // TODO: Implement message sending, this is just a placeholder
 
-    // try {
-    //   const response = await axios.post(
-    //     `https://kick.com/api/v2/messages/send/${channelInfo.id}`,
-    //     {
-    //       content: messageContent,
-    //       type: "message",
-    //     },
-    //     {
-    //       headers: {
-    //         accept: "application/json, text/plain, */*",
-    //         authorization: `Bearer ${token}`,
-    //         "content-type": "application/json",
-    //         "x-xsrf-token": token,
-    //         cookie: cookies,
-    //         Referer: `https://kick.com/${channelInfo.slug}`,
-    //       },
-    //     },
-    //   );
+    try {
+      const response = await axios.post(
+        `https://kick.com/api/v2/messages/send/${channelInfo.id}`,
+        {
+          content: messageContent,
+          type: "message",
+        },
+        {
+          headers: {
+            accept: "application/json, text/plain, */*",
+            authorization: `Bearer ${token}`,
+            "content-type": "application/json",
+            "x-xsrf-token": token,
+            cookie: cookies,
+            Referer: `https://kick.com/${channelInfo.slug}`,
+          },
+        },
+      );
 
-    //   if (response.status === 200) {
-    //     console.log(`Message sent successfully: ${messageContent}`);
-    //   } else {
-    //     console.error(`Failed to send message. Status: ${response.status}`);
-    //   }
-    // } catch (error) {
-    //   console.error("Error sending message:", error);
-    // }
+      if (response.status === 200) {
+        console.log(`Message sent successfully: ${messageContent}`);
+      } else {
+        console.error(`Failed to send message. Status: ${response.status}`);
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
   };
 
   void initialize();
@@ -138,5 +137,6 @@ export const createClient = (
       return getUser();
     },
     sendMessage,
+    login,
   };
 };

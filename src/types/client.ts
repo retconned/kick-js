@@ -14,4 +14,5 @@ export interface KickClient {
     tag: string;
   } | null;
   sendMessage: (messageContent: string) => Promise<void>;
+  login: (credentials: { token: string; cookies: string }) => Promise<void>;
 }
