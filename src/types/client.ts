@@ -2,6 +2,7 @@ export type EventHandler<T> = (data: T) => void;
 
 export interface ClientOptions {
   logger?: boolean;
+  plainEmote?: boolean;
   // Add more options as needed
 }
 
@@ -12,4 +13,5 @@ export interface KickClient {
     username: string;
     tag: string;
   } | null;
+  sendMessage: (messageContent: string) => Promise<void>;
 }

@@ -51,3 +51,9 @@ export interface Subscription {
   username: string;
   // Add more properties as needed
 }
+
+export interface RaidEvent {
+  raider_username: string;
+  viewer_count: number;
+  // Add more properties as needed
+}
