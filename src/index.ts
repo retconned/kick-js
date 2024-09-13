@@ -1,2 +1,3 @@
-export * from "./client/client.js";
-// export * from "./utils/utils.js";
+import { createClient } from "./client/client";
+
+export { createClient };

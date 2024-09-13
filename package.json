@@ -46,13 +46,23 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.15.4",
     "@changesets/cli": "^2.27.8",
+    "@types/ws": "^8.5.12",
     "@typescript-eslint/eslint-plugin": "^8.4.0",
     "@typescript-eslint/parser": "^8.4.0",
     "eslint": "8",
     "eslint-config-prettier": "^9.1.0",
     "prettier": "^3.3.3",
     "tsup": "^8.2.4",
+    "tsx": "^4.19.1",
     "typescript": "^5.5.4",
     "vitest": "^2.0.5"
+  },
+  "dependencies": {
+    "@types/uuid": "^10.0.0",
+    "puppeteer": "^23.3.0",
+    "puppeteer-extra": "3.3.6",
+    "puppeteer-extra-plugin-stealth": "2.11.2",
+    "uuid": "^10.0.0",
+    "ws": "^8.18.0"
   }
 }
