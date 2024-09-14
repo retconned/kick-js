@@ -3,8 +3,14 @@
   "version": "0.1.2",
   "description": "A typescript bot interface for kick.com",
   "keywords": [
-    "demo",
-    "typescript"
+    "Kick.com",
+    "Kick Streaming",
+    "Livestream",
+    "Kick Chat",
+    "Kick Bot",
+    "Kick Api",
+    "Kick Api Wrapper",
+    "Kick library"
   ],
   "homepage": "https://github.com/retconned/kick-js",
   "bugs": {
