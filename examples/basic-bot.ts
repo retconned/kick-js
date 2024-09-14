@@ -1,5 +1,4 @@
-import { createClient } from "../src";
-import type { MessageData } from "../src/types/events";
+import { createClient, type MessageData } from "@retconned/kick-js";
 import "dotenv/config";
 
 const client = createClient("xqc", { logger: true });
