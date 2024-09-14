@@ -1,5 +1,11 @@
 # @retconned/kickjs
 
+## 0.2.0
+
+### Minor Changes
+
+- b59672c: missing type fix & updated readme
+
 ## 0.1.2
 
 ### Patch Changes
