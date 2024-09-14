@@ -8,7 +8,7 @@ client.on("ready", () => {
   console.log(`Bot ready & logged into ${client.user?.tag}!`);
 });
 
-client.login({ process.env.TOKEN, process.env.COOKIES });
+// client.login({ process.env.TOKEN, process.env.COOKIES });
 
 client.on("ChatMessage", async (message: MessageData) => {
   console.log(`${message.sender.username}: ${message.content}`);
@@ -36,7 +36,6 @@ client.on("ChatMessage", async (message: MessageData) => {
       client.permanentBan(bannedUser);
     }
   }
-
 });
 
 client.on("Subscription", async (subscription) => {
