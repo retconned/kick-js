@@ -1,4 +1,4 @@
-# kickbot-sdk
+# kick-js
 
 ## 0.1.1
 

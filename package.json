@@ -1,19 +1,19 @@
 {
-  "name": "kickbot-sdk",
+  "name": "kick-js",
   "version": "0.1.1",
-  "description": "A typescript bot sdk for kick.com",
+  "description": "A typescript bot interface for kick.com",
   "keywords": [
     "demo",
     "typescript"
   ],
-  "homepage": "https://github.com/retconned/kickbot-sdk",
+  "homepage": "https://github.com/retconned/kick-js",
   "bugs": {
-    "url": "https://github.com/retconned/kickbot-sdk/issues"
+    "url": "https://github.com/retconned/kick-js/issues"
   },
   "author": "retconned <retcnned@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/retconned/kickbot-sdk.git"
+    "url": "git+https://github.com/retconned/kick-js.git"
   },
   "files": [
     "dist"

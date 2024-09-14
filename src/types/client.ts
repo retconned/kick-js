@@ -8,11 +8,13 @@ export interface ClientOptions {
 
 export interface KickClient {
   on: (event: string, listener: (...args: any[]) => void) => void;
+  login: (credentials: { token: string; cookies: string }) => Promise<void>;
   user: {
     id: number;
     username: string;
     tag: string;
   } | null;
   sendMessage: (messageContent: string) => Promise<void>;
-  login: (credentials: { token: string; cookies: string }) => Promise<void>;
+  permanentBan: (bannedUser: string) => Promise<void>;
+  slowMode: (mode: "on" | "off", durationInSeconds?: number) => Promise<void>;
 }

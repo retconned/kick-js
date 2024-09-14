@@ -5,9 +5,9 @@ import { createWebSocket } from "../core/websocket";
 import { parseMessage } from "../utils/messageHandling";
 import type { KickChannelInfo } from "../types/channels";
 import type { KickClient, ClientOptions } from "../types/client";
+import type { MessageData } from "../types/events";
 
 import axios from "axios";
-import type { MessageData } from "../types/events";
 
 export const createClient = (
   channelName: string,
@@ -87,7 +87,7 @@ export const createClient = (
     emitter.on(event, listener);
   };
 
-  // TODO: Implement authentication, this is just a placeholder
+  // TODO: Implement proper authentication, this is just a temp token & cookies passer
   const login = async (credentials: { token: string; cookies: string }) => {
     token = credentials.token;
     cookies = credentials.cookies;
@@ -129,6 +129,102 @@ export const createClient = (
     }
   };
 
+  const permanentBan = async (bannedUser: string) => {
+    if (!token || !cookies || !channelInfo) {
+      throw new Error("Not logged in or channel info not available");
+    }
+
+    if (!bannedUser) {
+      throw new Error("Specify a user to ban");
+    }
+
+    try {
+      const response = await axios.post(
+        `https://kick.com/api/v2/channels/${channelInfo.id}/bans`,
+        { banned_username: bannedUser, permanent: true },
+        {
+          headers: {
+            accept: "application/json, text/plain, */*",
+            authorization: `Bearer ${token}`,
+            "content-type": "application/json",
+            "x-xsrf-token": token,
+            cookie: cookies,
+            Referer: `https://kick.com/${channelInfo.slug}`,
+          },
+        },
+      );
+
+      if (response.status === 200) {
+        console.log(`Banned user ${bannedUser} sent successfully`);
+      } else {
+        console.error(`Failed to Ban user. Status: ${response.status}`);
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  };
+  const slowMode = async (mode: "on" | "off", durationInSeconds?: number) => {
+    if (!token || !cookies || !channelInfo) {
+      throw new Error("Not logged in or channel info not available");
+    }
+    if (mode !== "on" && mode !== "off") {
+      throw new Error("Invalid mode, must be 'on' or 'off'");
+    }
+    if (mode === "on" && durationInSeconds && durationInSeconds < 1) {
+      throw new Error(
+        "Invalid duration, must be greater than 0 if mode is 'on'",
+      );
+    }
+
+    try {
+      if (mode === "off") {
+        const response = await await axios.put(
+          `https://kick.com/api/v2/channels/${channelInfo.slug}/chatroom`,
+          { slow_mode: false },
+          {
+            headers: {
+              accept: "application/json, text/plain, */*",
+              authorization: `Bearer ${token}`,
+              "content-type": "application/json",
+              "x-xsrf-token": token,
+              cookie: cookies,
+              Referer: `https://kick.com/${channelInfo.slug}`,
+            },
+          },
+        );
+
+        if (response.status === 200) {
+          console.log(`Turned slow mode off successfully`);
+        } else {
+          console.error(`Failed to Ban user. Status: ${response.status}`);
+        }
+      } else {
+        const response = await await axios.put(
+          `https://kick.com/api/v2/channels/${channelInfo.slug}/chatroom`,
+          { slow_mode: true, message_interval: durationInSeconds },
+          {
+            headers: {
+              accept: "application/json, text/plain, */*",
+              authorization: `Bearer ${token}`,
+              "content-type": "application/json",
+              "x-xsrf-token": token,
+              cookie: cookies,
+              Referer: `https://kick.com/${channelInfo.slug}`,
+            },
+          },
+        );
+
+        if (response.status === 200) {
+          console.log(`Turned slow mode on for ${durationInSeconds} seconds`);
+        } else {
+          console.error(`Failed to Ban user. Status: ${response.status}`);
+        }
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  };
+
   void initialize();
 
   return {
@@ -136,7 +232,9 @@ export const createClient = (
     get user() {
       return getUser();
     },
-    sendMessage,
     login,
+    sendMessage,
+    permanentBan,
+    slowMode,
   };
 };

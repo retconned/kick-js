@@ -44,8 +44,8 @@ export interface ChatMessage {
   };
 }
 
+// these are not implemented yet
 export interface Subscription {
-  // Define subscription event properties
   id: string;
   user_id: number;
   username: string;
