@@ -39,7 +39,6 @@ client.login({ process.env.TOKEN, process.env.COOKIES });
 
 client.on("ChatMessage", async (message) => {
   console.log(`${message.sender.username}: ${message.content}`);
-  }
 });
 ```
 
