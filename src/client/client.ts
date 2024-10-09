@@ -1,9 +1,10 @@
 import WebSocket from "ws";
 import EventEmitter from "events";
-import { getChannelData } from "../core/kickApi";
+import { getChannelData, getVideoData } from "../core/kickApi";
 import { createWebSocket } from "../core/websocket";
 import { parseMessage } from "../utils/messageHandling";
 import type { KickChannelInfo } from "../types/channels";
+import type { VideoInfo } from "../types/video";
 import type { KickClient, ClientOptions } from "../types/client";
 import type { MessageData } from "../types/events";
 
@@ -16,6 +17,7 @@ export const createClient = (
   const emitter = new EventEmitter();
   let socket: WebSocket | null = null;
   let channelInfo: KickChannelInfo | null = null;
+  let videoInfo: VideoInfo | null = null;
 
   let token: string | null = null;
   let cookies: string | null = null;
@@ -85,6 +87,31 @@ export const createClient = (
 
   const on = (event: string, listener: (...args: any[]) => void) => {
     emitter.on(event, listener);
+  };
+
+  const video = async (video_id: string) => {
+    videoInfo = await getVideoData(video_id);
+
+    if (!videoInfo) {
+      throw new Error("Unable to fetch video data");
+    }
+
+    return {
+      id: videoInfo.id,
+      title: videoInfo.livestream.session_title,
+      thumbnail: videoInfo.livestream.thumbnail,
+      duration: videoInfo.livestream.duration,
+      live_stream_id: videoInfo.live_stream_id,
+      start_time: videoInfo.livestream.start_time,
+      created_at: videoInfo.created_at,
+      updated_at: videoInfo.updated_at,
+      uuid: videoInfo.uuid,
+      views: videoInfo.views,
+      stream: videoInfo.source,
+      language: videoInfo.livestream.language,
+      livestream: videoInfo.livestream,
+      channel: videoInfo.livestream.channel,
+    };
   };
 
   // TODO: Implement proper authentication, this is just a temp token & cookies passer
@@ -229,6 +256,7 @@ export const createClient = (
 
   return {
     on,
+    video,
     get user() {
       return getUser();
     },
