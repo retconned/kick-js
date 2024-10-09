@@ -1,5 +1,7 @@
-import { createClient, type MessageData } from "@retconned/kick-js";
-import "dotenv/config";
+// import { createClient, type MessageData } from "@retconned/kick-js";
+
+import { createClient } from "../src/client/client";
+import type { MessageData } from "../src/types/events";
 
 const client = createClient("xqc", { logger: true });
 
@@ -40,3 +42,7 @@ client.on("ChatMessage", async (message: MessageData) => {
 client.on("Subscription", async (subscription) => {
   console.log(`New subscription 💰 : ${subscription.username}`);
 });
+
+const { title, duration, thumbnail, views } = await client.video(
+  "8c976c04-be09-47c0-93e1-4af52e9d23bd",
+);
