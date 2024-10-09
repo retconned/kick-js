@@ -1,7 +1,4 @@
-// import { createClient, type MessageData } from "@retconned/kick-js";
-
-import { createClient } from "../src/client/client";
-import type { MessageData } from "../src/types/events";
+import { createClient, type MessageData } from "@retconned/kick-js";
 
 const client = createClient("xqc", { logger: true });
 
@@ -43,5 +40,5 @@ client.on("Subscription", async (subscription) => {
   console.log(`New subscription 💰 : ${subscription.username}`);
 });
 
-const { title, duration, thumbnail, views } =
-  await client.video("your-video-id");
+// get information about a vod
+const { title, duration, thumbnail, views } = await client.vod("your-video-id");

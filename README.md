@@ -40,6 +40,10 @@ client.login({ process.env.TOKEN, process.env.COOKIES });
 client.on("ChatMessage", async (message) => {
   console.log(`${message.sender.username}: ${message.content}`);
 });
+
+// get information about a vod
+// your-video-id = vod uuid
+const { title, duration, thumbnail, views } = await client.vod("your-video-id");
 ```
 
 ## Disclaimer :warning:

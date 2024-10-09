@@ -27,7 +27,7 @@ export interface Video {
 
 export interface KickClient {
   on: (event: string, listener: (...args: any[]) => void) => void;
-  video: (video_id: string) => Promise<Video>;
+  vod: (video_id: string) => Promise<Video>;
   login: (credentials: { token: string; cookies: string }) => Promise<void>;
   user: {
     id: number;
