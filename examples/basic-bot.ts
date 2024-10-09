@@ -43,6 +43,5 @@ client.on("Subscription", async (subscription) => {
   console.log(`New subscription 💰 : ${subscription.username}`);
 });
 
-const { title, duration, thumbnail, views } = await client.video(
-  "8c976c04-be09-47c0-93e1-4af52e9d23bd",
-);
+const { title, duration, thumbnail, views } =
+  await client.video("your-video-id");
