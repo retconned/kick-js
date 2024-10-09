@@ -89,7 +89,7 @@ export const createClient = (
     emitter.on(event, listener);
   };
 
-  const video = async (video_id: string) => {
+  const vod = async (video_id: string) => {
     videoInfo = await getVideoData(video_id);
 
     if (!videoInfo) {
@@ -256,7 +256,7 @@ export const createClient = (
 
   return {
     on,
-    video,
+    vod,
     get user() {
       return getUser();
     },
