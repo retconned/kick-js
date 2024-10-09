@@ -1,5 +1,11 @@
 # @retconned/kickjs
 
+## 0.3.0
+
+### Minor Changes
+
+- d96ca4b: adds a vods data feature
+
 ## 0.2.0
 
 ### Minor Changes
