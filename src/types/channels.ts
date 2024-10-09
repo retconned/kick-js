@@ -1,3 +1,5 @@
+import type { Livestream } from "./video";
+
 export interface KickChannelInfo {
   id: number;
   user_id: number;
@@ -13,14 +15,13 @@ export interface KickChannelInfo {
   role: null;
   muted: boolean;
   follower_badges: unknown[];
-  offline_banner_image: { [key: string]: string } | null;
+  offline_banner_image: null;
   verified: boolean;
   recent_categories: RecentCategory[];
   can_host: boolean;
   user: User;
   chatroom: Chatroom;
 }
-
 export interface BannerImage {
   url: string;
 }
@@ -29,8 +30,8 @@ export interface Chatroom {
   id: number;
   chatable_type: string;
   channel_id: number;
-  created_at: string;
-  updated_at: string;
+  created_at: Date;
+  updated_at: Date;
   chat_mode_old: string;
   chat_mode: string;
   slow_mode: boolean;
@@ -71,18 +72,22 @@ export interface SubscriberBadge {
   id: number;
   channel_id: number;
   months: number;
-  badge_image: { [key: string]: string };
+  badge_image: BadgeImage;
 }
 
+export interface BadgeImage {
+  srcset: string;
+  src: string;
+}
 export interface User {
   id: number;
   username: string;
   agreed_to_terms: boolean;
-  email_verified_at: string;
+  email_verified_at: Date;
   bio: string;
-  country: string;
-  state: string;
-  city: string;
+  country: null;
+  state: null;
+  city: null;
   instagram: string;
   twitter: string;
   youtube: string;
@@ -90,48 +95,4 @@ export interface User {
   tiktok: string;
   facebook: string;
   profile_pic: string;
-}
-
-export interface BannerImage {
-  url: string;
-}
-
-export interface Livestream {
-  id: number;
-  slug: string;
-  channel_id: number;
-  created_at: string;
-  session_title: string;
-  is_live: boolean;
-  risk_level_id: null;
-  start_time: string;
-  source: null;
-  twitch_channel: null;
-  duration: number;
-  language: string;
-  is_mature: boolean;
-  viewer_count: number;
-  thumbnail: BannerImage;
-  categories: RecentCategoryElement[];
-  tags: unknown[];
-}
-
-export interface RecentCategoryElement {
-  id: number;
-  category_id: number;
-  name: string;
-  slug: string;
-  tags: string[];
-  description: null;
-  deleted_at: null;
-  viewers: number;
-  category: RecentCategoryCategory;
-  banner?: Banner;
-}
-
-export interface RecentCategoryCategory {
-  id: number;
-  name: string;
-  slug: string;
-  icon: string;
 }
