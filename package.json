@@ -64,6 +64,7 @@
     "vitest": "^2.1.1"
   },
   "dependencies": {
+    "@retconned/kick-js": "file:",
     "axios": "^1.7.7",
     "puppeteer": "^23.3.0",
     "puppeteer-extra": "3.3.6",

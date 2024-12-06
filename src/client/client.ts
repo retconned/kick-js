@@ -21,6 +21,7 @@ export const createClient = (
 
   let token: string | null = null;
   let cookies: string | null = null;
+  let bearer: string | null = null;
 
   const defaultOptions: ClientOptions = {
     plainEmote: true,
@@ -115,9 +116,10 @@ export const createClient = (
   };
 
   // TODO: Implement proper authentication, this is just a temp token & cookies passer
-  const login = async (credentials: { token: string; cookies: string }) => {
+  const login = async (credentials: { token: string; cookies: string; bearer: string }) => {
     token = credentials.token;
     cookies = credentials.cookies;
+    bearer = credentials.bearer;
 
     console.log("Logged in successfully as : ", token);
   };
@@ -137,7 +139,7 @@ export const createClient = (
         {
           headers: {
             accept: "application/json, text/plain, */*",
-            authorization: `Bearer ${token}`,
+            authorization: `Bearer ${bearer}`,
             "content-type": "application/json",
             "x-xsrf-token": token,
             cookie: cookies,
@@ -172,7 +174,7 @@ export const createClient = (
         {
           headers: {
             accept: "application/json, text/plain, */*",
-            authorization: `Bearer ${token}`,
+            authorization: `Bearer ${bearer}`,
             "content-type": "application/json",
             "x-xsrf-token": token,
             cookie: cookies,
@@ -211,7 +213,7 @@ export const createClient = (
           {
             headers: {
               accept: "application/json, text/plain, */*",
-              authorization: `Bearer ${token}`,
+              authorization: `Bearer ${bearer}`,
               "content-type": "application/json",
               "x-xsrf-token": token,
               cookie: cookies,
@@ -232,7 +234,7 @@ export const createClient = (
           {
             headers: {
               accept: "application/json, text/plain, */*",
-              authorization: `Bearer ${token}`,
+              authorization: `Bearer ${bearer}`,
               "content-type": "application/json",
               "x-xsrf-token": token,
               cookie: cookies,
