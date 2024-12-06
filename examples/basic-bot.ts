@@ -1,4 +1,5 @@
 import { createClient, type MessageData } from "@retconned/kick-js";
+import "dotenv/config";
 
 const client = createClient("xqc", { logger: true });
 
@@ -6,7 +7,11 @@ client.on("ready", () => {
   console.log(`Bot ready & logged into ${client.user?.tag}!`);
 });
 
-// client.login({ process.env.TOKEN, process.env.COOKIES });
+const token = process.env.TOKEN;
+const cookies = process.env.COOKIES;
+const bearer = process.env.BEARER;
+
+client.login({ token: token, cookies: cookies, bearer: bearer });
 
 client.on("ChatMessage", async (message: MessageData) => {
   console.log(`${message.sender.username}: ${message.content}`);
