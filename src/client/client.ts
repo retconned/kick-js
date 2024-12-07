@@ -5,7 +5,11 @@ import { createWebSocket } from "../core/websocket";
 import { parseMessage } from "../utils/messageHandling";
 import type { KickChannelInfo } from "../types/channels";
 import type { VideoInfo } from "../types/video";
-import type { KickClient, ClientOptions } from "../types/client";
+import type {
+  KickClient,
+  ClientOptions,
+  LoginCredentials,
+} from "../types/client";
 import type { MessageData } from "../types/events";
 
 import axios from "axios";
@@ -21,7 +25,7 @@ export const createClient = (
 
   let token: string | null = null;
   let cookies: string | null = null;
-  let bearer: string | null = null;
+  let bearerToken: string | null = null;
 
   const defaultOptions: ClientOptions = {
     plainEmote: true,
@@ -116,17 +120,25 @@ export const createClient = (
   };
 
   // TODO: Implement proper authentication, this is just a temp token & cookies passer
-  const login = async (credentials: { token: string; cookies: string; bearer: string }) => {
+  const login = async (credentials: LoginCredentials) => {
     token = credentials.token;
     cookies = credentials.cookies;
-    bearer = credentials.bearer;
+    bearerToken = credentials.bearerToken;
+
+    if (!token || !cookies || !bearerToken) {
+      throw new Error("Need credentials to login");
+    }
 
     console.log("Logged in successfully as : ", token);
   };
 
   const sendMessage = async (messageContent: string) => {
-    if (!token || !cookies || !channelInfo) {
-      throw new Error("Not logged in or channel info not available");
+    if (!channelInfo) {
+      throw new Error("Channel info not available");
+    }
+
+    if (!token || !cookies || !bearerToken) {
+      throw new Error("Need credentials to send a message");
     }
 
     try {
@@ -139,7 +151,7 @@ export const createClient = (
         {
           headers: {
             accept: "application/json, text/plain, */*",
-            authorization: `Bearer ${bearer}`,
+            authorization: `Bearer ${bearerToken}`,
             "content-type": "application/json",
             "x-xsrf-token": token,
             cookie: cookies,
@@ -159,8 +171,12 @@ export const createClient = (
   };
 
   const permanentBan = async (bannedUser: string) => {
-    if (!token || !cookies || !channelInfo) {
-      throw new Error("Not logged in or channel info not available");
+    if (!channelInfo) {
+      throw new Error("Channel info not available");
+    }
+
+    if (!token || !cookies || !bearerToken) {
+      throw new Error("Need credentials to ban a user");
     }
 
     if (!bannedUser) {
@@ -174,7 +190,7 @@ export const createClient = (
         {
           headers: {
             accept: "application/json, text/plain, */*",
-            authorization: `Bearer ${bearer}`,
+            authorization: `Bearer ${bearerToken}`,
             "content-type": "application/json",
             "x-xsrf-token": token,
             cookie: cookies,
@@ -192,10 +208,16 @@ export const createClient = (
       console.error("Error sending message:", error);
     }
   };
+
   const slowMode = async (mode: "on" | "off", durationInSeconds?: number) => {
-    if (!token || !cookies || !channelInfo) {
-      throw new Error("Not logged in or channel info not available");
+    if (!channelInfo) {
+      throw new Error("Channel info not available");
     }
+
+    if (!token || !cookies || !bearerToken) {
+      throw new Error("Need credentials to use slowmode");
+    }
+
     if (mode !== "on" && mode !== "off") {
       throw new Error("Invalid mode, must be 'on' or 'off'");
     }
@@ -213,7 +235,7 @@ export const createClient = (
           {
             headers: {
               accept: "application/json, text/plain, */*",
-              authorization: `Bearer ${bearer}`,
+              authorization: `Bearer ${bearerToken}`,
               "content-type": "application/json",
               "x-xsrf-token": token,
               cookie: cookies,
@@ -234,7 +256,7 @@ export const createClient = (
           {
             headers: {
               accept: "application/json, text/plain, */*",
-              authorization: `Bearer ${bearer}`,
+              authorization: `Bearer ${bearerToken}`,
               "content-type": "application/json",
               "x-xsrf-token": token,
               cookie: cookies,
