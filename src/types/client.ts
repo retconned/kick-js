@@ -3,9 +3,9 @@ import type { Channel, Livestream } from "./video";
 export type EventHandler<T> = (data: T) => void;
 
 export interface ClientOptions {
-  logger?: boolean;
   plainEmote?: boolean;
-  // Add more options as needed
+  logger?: boolean;
+  readOnly?: boolean;
 }
 
 export interface Video {
@@ -25,16 +25,10 @@ export interface Video {
   channel: Channel;
 }
 
-export interface LoginCredentials {
-  token: string;
-  cookies: string;
-  bearerToken: string;
-}
-
 export interface KickClient {
   on: (event: string, listener: (...args: any[]) => void) => void;
   vod: (video_id: string) => Promise<Video>;
-  login: (credentials: LoginCredentials) => Promise<void>;
+  login: (credentials: AuthenticationSettings) => Promise<boolean>;
   user: {
     id: number;
     username: string;
@@ -43,4 +37,10 @@ export interface KickClient {
   sendMessage: (messageContent: string) => Promise<void>;
   permanentBan: (bannedUser: string) => Promise<void>;
   slowMode: (mode: "on" | "off", durationInSeconds?: number) => Promise<void>;
+}
+
+export interface AuthenticationSettings {
+  username: string;
+  password: string;
+  otp_secret: string;
 }
