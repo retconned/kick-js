@@ -25,10 +25,16 @@ export interface Video {
   channel: Channel;
 }
 
+export interface LoginCredentials {
+  token: string;
+  cookies: string;
+  bearerToken: string;
+}
+
 export interface KickClient {
   on: (event: string, listener: (...args: any[]) => void) => void;
   vod: (video_id: string) => Promise<Video>;
-  login: (credentials: { token: string; cookies: string; bearer: string }) => Promise<void>;
+  login: (credentials: LoginCredentials) => Promise<void>;
   user: {
     id: number;
     username: string;
