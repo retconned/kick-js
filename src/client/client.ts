@@ -1,6 +1,6 @@
 import WebSocket from "ws";
 import EventEmitter from "events";
-import { getChannelData, getVideoData } from "../core/kickApi";
+import { authentication, getChannelData, getVideoData } from "../core/kickApi";
 import { createWebSocket } from "../core/websocket";
 import { parseMessage } from "../utils/messageHandling";
 import type { KickChannelInfo } from "../types/channels";
@@ -8,10 +8,9 @@ import type { VideoInfo } from "../types/video";
 import type {
   KickClient,
   ClientOptions,
-  LoginCredentials,
+  AuthenticationSettings,
 } from "../types/client";
 import type { MessageData } from "../types/events";
-
 import axios from "axios";
 
 export const createClient = (
@@ -23,19 +22,62 @@ export const createClient = (
   let channelInfo: KickChannelInfo | null = null;
   let videoInfo: VideoInfo | null = null;
 
-  let token: string | null = null;
-  let cookies: string | null = null;
-  let bearerToken: string | null = null;
+  let clientToken: string | null = null;
+  let clientCookies: string | null = null;
+  let clientBearerToken: string | null = null;
+  let isLoggedIn = false;
 
   const defaultOptions: ClientOptions = {
     plainEmote: true,
     logger: false,
+    readOnly: false,
   };
 
   const mergedOptions = { ...defaultOptions, ...options };
 
+  const validateAuthSettings = (settings: AuthenticationSettings) => {
+    const { username, password, otp_secret } = settings;
+    if (!username || typeof username !== "string") {
+      throw new Error("Username is required and must be a string");
+    }
+    if (!password || typeof password !== "string") {
+      throw new Error("Password is required and must be a string");
+    }
+    if (!otp_secret || typeof otp_secret !== "string") {
+      throw new Error("OTP secret is required and must be a string");
+    }
+  };
+
+  const login = async (credentials: AuthenticationSettings) => {
+    try {
+      validateAuthSettings(credentials);
+
+      const { bearerToken, xsrfToken, cookies, isAuthenticated } =
+        await authentication(credentials);
+
+      clientBearerToken = bearerToken;
+      clientToken = xsrfToken;
+      clientCookies = cookies;
+      isLoggedIn = isAuthenticated;
+
+      if (!isAuthenticated) {
+        throw new Error("Authentication failed");
+      }
+
+      await initialize(); // Initialize after successful login
+      return true;
+    } catch (error) {
+      console.error("Login failed:", error);
+      throw error;
+    }
+  };
+
   const initialize = async () => {
     try {
+      if (!mergedOptions.readOnly && !isLoggedIn) {
+        throw new Error("Authentication required. Please login first.");
+      }
+
       channelInfo = await getChannelData(channelName);
       if (!channelInfo) {
         throw new Error("Unable to fetch channel data");
@@ -52,15 +94,13 @@ export const createClient = (
 
       socket.on("message", (data: WebSocket.Data) => {
         const parsedMessage = parseMessage(data.toString());
-
         if (parsedMessage) {
           if (
             mergedOptions.plainEmote &&
             parsedMessage.type === "ChatMessage"
           ) {
-            const parsedMessagePlain = parsedMessage.data as MessageData;
-
-            parsedMessagePlain.content = parsedMessagePlain.content.replace(
+            const messageData = parsedMessage.data as MessageData;
+            messageData.content = messageData.content.replace(
               /\[emote:(\d+):(\w+)\]/g,
               (_, __, emoteName) => emoteName,
             );
@@ -75,11 +115,21 @@ export const createClient = (
         }
         emitter.emit("disconnect");
       });
+
+      socket.on("error", (error) => {
+        console.error("WebSocket error:", error);
+        emitter.emit("error", error);
+      });
     } catch (error) {
       console.error("Error during initialization:", error);
       throw error;
     }
   };
+
+  // Only initialize immediately if readOnly is true
+  if (mergedOptions.readOnly) {
+    void initialize();
+  }
 
   const getUser = () =>
     channelInfo
@@ -119,17 +169,13 @@ export const createClient = (
     };
   };
 
-  // TODO: Implement proper authentication, this is just a temp token & cookies passer
-  const login = async (credentials: LoginCredentials) => {
-    token = credentials.token;
-    cookies = credentials.cookies;
-    bearerToken = credentials.bearerToken;
-
-    if (!token || !cookies || !bearerToken) {
-      throw new Error("Need credentials to login");
+  const checkAuth = () => {
+    if (!isLoggedIn) {
+      throw new Error("Authentication required. Please login first.");
     }
-
-    console.log("Logged in successfully as : ", token);
+    if (!clientBearerToken || !clientToken || !clientCookies) {
+      throw new Error("Missing authentication tokens");
+    }
   };
 
   const sendMessage = async (messageContent: string) => {
@@ -137,9 +183,7 @@ export const createClient = (
       throw new Error("Channel info not available");
     }
 
-    if (!token || !cookies || !bearerToken) {
-      throw new Error("Need credentials to send a message");
-    }
+    checkAuth();
 
     try {
       const response = await axios.post(
@@ -151,10 +195,10 @@ export const createClient = (
         {
           headers: {
             accept: "application/json, text/plain, */*",
-            authorization: `Bearer ${bearerToken}`,
+            authorization: `Bearer ${clientBearerToken}`,
             "content-type": "application/json",
-            "x-xsrf-token": token,
-            cookie: cookies,
+            "x-xsrf-token": clientToken,
+            cookie: clientCookies,
             Referer: `https://kick.com/${channelInfo.slug}`,
           },
         },
@@ -175,9 +219,7 @@ export const createClient = (
       throw new Error("Channel info not available");
     }
 
-    if (!token || !cookies || !bearerToken) {
-      throw new Error("Need credentials to ban a user");
-    }
+    checkAuth();
 
     if (!bannedUser) {
       throw new Error("Specify a user to ban");
@@ -190,10 +232,10 @@ export const createClient = (
         {
           headers: {
             accept: "application/json, text/plain, */*",
-            authorization: `Bearer ${bearerToken}`,
+            authorization: `Bearer ${clientBearerToken}`,
             "content-type": "application/json",
-            "x-xsrf-token": token,
-            cookie: cookies,
+            "x-xsrf-token": clientToken,
+            cookie: clientCookies,
             Referer: `https://kick.com/${channelInfo.slug}`,
           },
         },
@@ -214,9 +256,7 @@ export const createClient = (
       throw new Error("Channel info not available");
     }
 
-    if (!token || !cookies || !bearerToken) {
-      throw new Error("Need credentials to use slowmode");
-    }
+    checkAuth();
 
     if (mode !== "on" && mode !== "off") {
       throw new Error("Invalid mode, must be 'on' or 'off'");
@@ -235,10 +275,10 @@ export const createClient = (
           {
             headers: {
               accept: "application/json, text/plain, */*",
-              authorization: `Bearer ${bearerToken}`,
+              authorization: `Bearer ${clientBearerToken}`,
               "content-type": "application/json",
-              "x-xsrf-token": token,
-              cookie: cookies,
+              "x-xsrf-token": clientToken,
+              cookie: clientCookies,
               Referer: `https://kick.com/${channelInfo.slug}`,
             },
           },
@@ -256,10 +296,10 @@ export const createClient = (
           {
             headers: {
               accept: "application/json, text/plain, */*",
-              authorization: `Bearer ${bearerToken}`,
+              authorization: `Bearer ${clientBearerToken}`,
               "content-type": "application/json",
-              "x-xsrf-token": token,
-              cookie: cookies,
+              "x-xsrf-token": clientToken,
+              cookie: clientCookies,
               Referer: `https://kick.com/${channelInfo.slug}`,
             },
           },
@@ -275,8 +315,6 @@ export const createClient = (
       console.error("Error sending message:", error);
     }
   };
-
-  void initialize();
 
   return {
     on,

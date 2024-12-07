@@ -1,17 +1,16 @@
 import { createClient, type MessageData } from "@retconned/kick-js";
 
-const client = createClient("xqc", { logger: true });
+const client = createClient("fivemp4", { logger: true });
+
+client.login({
+  username: process.env.USERNAME!,
+  password: process.env.PASSWORD!,
+  otp_secret: process.env.OTP_SECRET!,
+});
 
 client.on("ready", () => {
   console.log(`Bot ready & logged into ${client.user?.tag}!`);
 });
-
-// currently not implemented just yet
-
-// const token = process.env.TOKEN!;
-// const cookies = process.env.COOKIES!;
-// const bearerToken = process.env.BEARER!;
-// client.login({ token, cookies, bearerToken });
 
 client.on("ChatMessage", async (message: MessageData) => {
   console.log(`${message.sender.username}: ${message.content}`);
