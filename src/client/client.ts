@@ -35,8 +35,8 @@ export const createClient = (
 
   const mergedOptions = { ...defaultOptions, ...options };
 
-  const validateAuthSettings = (settings: AuthenticationSettings) => {
-    const { username, password, otp_secret } = settings;
+  const validateAuthSettings = (credentials: AuthenticationSettings) => {
+    const { username, password, otp_secret } = credentials;
     if (!username || typeof username !== "string") {
       throw new Error("Username is required and must be a string");
     }
@@ -52,8 +52,16 @@ export const createClient = (
     try {
       validateAuthSettings(credentials);
 
+      if (mergedOptions.logger) {
+        console.log("Starting authentication process...");
+      }
+
       const { bearerToken, xsrfToken, cookies, isAuthenticated } =
         await authentication(credentials);
+
+      if (mergedOptions.logger) {
+        console.log("Authentication tokens received, validating...");
+      }
 
       clientBearerToken = bearerToken;
       clientToken = xsrfToken;
@@ -62,6 +70,10 @@ export const createClient = (
 
       if (!isAuthenticated) {
         throw new Error("Authentication failed");
+      }
+
+      if (mergedOptions.logger) {
+        console.log("Authentication successful, initializing client...");
       }
 
       await initialize(); // Initialize after successful login
@@ -78,9 +90,19 @@ export const createClient = (
         throw new Error("Authentication required. Please login first.");
       }
 
+      if (mergedOptions.logger) {
+        console.log(`Fetching channel data for: ${channelName}`);
+      }
+
       channelInfo = await getChannelData(channelName);
       if (!channelInfo) {
         throw new Error("Unable to fetch channel data");
+      }
+
+      if (mergedOptions.logger) {
+        console.log(
+          "Channel data received, establishing WebSocket connection...",
+        );
       }
 
       socket = createWebSocket(channelInfo.chatroom.id);
