@@ -1,5 +1,11 @@
 # @retconned/kickjs
 
+## 0.4.1
+
+### Patch Changes
+
+- 2c07d86: minor publishing misshap
+
 ## 0.4.0
 
 ### Minor Changes
