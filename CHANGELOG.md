@@ -1,5 +1,11 @@
 # @retconned/kickjs
 
+## 0.4.2
+
+### Patch Changes
+
+- 6e9408c: fixes example code in readme
+
 ## 0.4.1
 
 ### Patch Changes
