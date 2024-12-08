@@ -1,6 +1,6 @@
 import { createClient, type MessageData } from "@retconned/kick-js";
 
-const client = createClient("fivemp4", { logger: true });
+const client = createClient("xqc", { logger: true });
 
 client.login({
   username: process.env.USERNAME!,
