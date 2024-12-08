@@ -29,17 +29,19 @@ npm install @retconned/kick-js
 import { createClient } from "@retconned/kick-js";
 import "dotenv/config";
 
-const client = createClient("xqc", { logger: true });
+const client = createClient("xqc", { logger: true, readOnly: true });
+// readOnly: true will make the client only read messages from the chat, and disable all other authenticated actions.
 
 client.on("ready", () => {
   console.log(`Bot ready & logged into ${client.user?.tag}!`);
 });
 
-const token = process.env.TOKEN;
-const cookies = process.env.COOKIES;
-const bearer = process.env.BEARER;
-
-client.login({ token: token, cookies: cookies, bearer: bearer });
+client.login({
+  username: "xqc",
+  password: "bigschnozer420",
+  otp_secret: "your-2fa-secret",
+});
+// to get your OTP secret, you need to go to https://kick.com/settings/security and enable Two-Factor Authentication and copy the secret from there
 
 client.on("ChatMessage", async (message) => {
   console.log(`${message.sender.username}: ${message.content}`);
