@@ -1,5 +1,11 @@
 # @retconned/kickjs
 
+## 0.4.0
+
+### Minor Changes
+
+- 59e5f76: authentication implementation
+
 ## 0.3.0
 
 ### Minor Changes
