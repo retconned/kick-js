@@ -12,23 +12,36 @@ export const getChannelData = async (
 
   const page = await browser.newPage();
 
-  await page.goto(`https://kick.com/api/v2/channels/${channel}`);
-  await page.waitForSelector("body");
-
   try {
+    const response = await page.goto(
+      `https://kick.com/api/v2/channels/${channel}`,
+    );
+
+    // Check if blocked by Cloudflare
+    if (response?.status() === 403) {
+      throw new Error(
+        "Request blocked by Cloudflare protection. Please try again later.",
+      );
+    }
+
+    await page.waitForSelector("body");
+
     const jsonContent: KickChannelInfo = await page.evaluate(() => {
       const bodyElement = document.querySelector("body");
       if (!bodyElement || !bodyElement.textContent) {
         throw new Error("Unable to fetch channel data");
       }
 
-      console.log(bodyElement.textContent);
       return JSON.parse(bodyElement.textContent);
     });
+
     await browser.close();
     return jsonContent;
   } catch (error) {
     await browser.close();
+    if (error instanceof Error && error.message.includes("Cloudflare")) {
+      throw error; // Re-throw Cloudflare-specific error
+    }
     console.error("Error getting channel data:", error);
     return null;
   }
