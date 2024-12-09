@@ -1,5 +1,11 @@
 # @retconned/kickjs
 
+## 0.4.3
+
+### Patch Changes
+
+- cea93c2: adds polls, leaderboard, timeouts support, cloudflare error handling
+
 ## 0.4.2
 
 ### Patch Changes
