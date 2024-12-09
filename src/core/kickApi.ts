@@ -54,10 +54,20 @@ export const getVideoData = async (
   const browser = await puppeteerExtra.launch({ headless: true });
   const page = await browser.newPage();
 
-  await page.goto(`https://kick.com/api/v1/video/${video_id}`);
-  await page.waitForSelector("body");
-
   try {
+    const response = await page.goto(
+      `https://kick.com/api/v1/video/${video_id}`,
+    );
+
+    // Check if blocked by Cloudflare
+    if (response?.status() === 403) {
+      throw new Error(
+        "Request blocked by Cloudflare protection. Please try again later.",
+      );
+    }
+
+    await page.waitForSelector("body");
+
     const jsonContent: VideoInfo = await page.evaluate(() => {
       const bodyElement = document.querySelector("body");
       if (!bodyElement || !bodyElement.textContent) {
@@ -70,6 +80,9 @@ export const getVideoData = async (
     return jsonContent;
   } catch (error) {
     await browser.close();
+    if (error instanceof Error && error.message.includes("Cloudflare")) {
+      throw error; // Re-throw Cloudflare-specific error
+    }
     console.error("Error getting video data:", error);
     return null;
   }

@@ -46,3 +46,13 @@ client.on("Subscription", async (subscription) => {
 
 // get information about a vod
 const { title, duration, thumbnail, views } = await client.vod("your-video-id");
+
+// to get the current poll in a channel in the channel the bot is in
+const poll = await client.getPoll();
+// or you can pass a specific channel to get the poll in that channel.
+// example: const poll = await client.getPoll("xqc");
+
+// get leaderboards for the channel the bot is in
+const leaderboards = await client.getLeaderboards();
+// or you can pass a specific channel to get the leaderboards in that channel.
+// example: const leaderboards = await client.getLeaderboards("xqc");

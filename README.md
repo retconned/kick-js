@@ -50,6 +50,16 @@ client.on("ChatMessage", async (message) => {
 // get information about a vod
 // your-video-id = vod uuid
 const { title, duration, thumbnail, views } = await client.vod("your-video-id");
+
+// get leaderboards for a channel
+const leaderboards = await client.getLeaderboards();
+// you can also pass in a kick-channel-name to get leaderboards for a different channel
+// example: const leaderboards = await client.getLeaderboards("xqc");
+
+// get polls for a channel
+const polls = await client.getPolls();
+// you can also pass in a kick-channel-name to get polls for a different channel
+// example: const polls = await client.getPolls("xqc");
 ```
 
 ## Disclaimer :warning:
