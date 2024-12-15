@@ -197,6 +197,10 @@ export const createClient = (
 
     checkAuth();
 
+    if (messageContent.length > 500) {
+      throw new Error("Message content must be less than 500 characters");
+    }
+
     try {
       const response = await axios.post(
         `https://kick.com/api/v2/messages/send/${channelInfo.id}`,
