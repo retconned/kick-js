@@ -116,15 +116,30 @@ export const createClient = (
       socket.on("message", (data: WebSocket.Data) => {
         const parsedMessage = parseMessage(data.toString());
         if (parsedMessage) {
-          if (
-            mergedOptions.plainEmote &&
-            parsedMessage.type === "ChatMessage"
-          ) {
-            const messageData = parsedMessage.data as MessageData;
-            messageData.content = messageData.content.replace(
-              /\[emote:(\d+):(\w+)\]/g,
-              (_, __, emoteName) => emoteName,
-            );
+          switch (parsedMessage.type) {
+            case "ChatMessage":
+              if (mergedOptions.plainEmote) {
+                const messageData: MessageData = parsedMessage.data;
+                messageData.content = messageData.content.replace(
+                  /\[emote:(\d+):(\w+)\]/g,
+                  (_, __, emoteName) => emoteName,
+                );
+              }
+              break;
+            case "Subscription":
+              break;
+            case "HostEvent":
+              break;
+            case "GiftedSubscriptions":
+              break;
+            case "UserBannedEvent":
+              break;
+            case "UserUnbannedEvent":
+              break;
+            case "PinnedMessageCreatedEvent":
+              break;
+            case "StreamHostEvent":
+              break;
           }
           emitter.emit(parsedMessage.type, parsedMessage.data);
         }
