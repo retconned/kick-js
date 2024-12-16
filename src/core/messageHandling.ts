@@ -4,7 +4,7 @@ import type {
   Subscription,
   RaidEvent,
 } from "../types/events";
-import { parseJSON } from "./utils";
+import { parseJSON } from "../utils/utils";
 
 export const parseMessage = (message: string) => {
   try {

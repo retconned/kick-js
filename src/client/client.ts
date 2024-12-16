@@ -2,7 +2,7 @@ import WebSocket from "ws";
 import EventEmitter from "events";
 import { authentication, getChannelData, getVideoData } from "../core/kickApi";
 import { createWebSocket } from "../core/websocket";
-import { parseMessage } from "../utils/messageHandling";
+import { parseMessage } from "../core/messageHandling";
 import type { KickChannelInfo } from "../types/channels";
 import type { VideoInfo } from "../types/video";
 import type {
@@ -128,17 +128,15 @@ export const createClient = (
               break;
             case "Subscription":
               break;
-            case "HostEvent":
-              break;
             case "GiftedSubscriptions":
+              break;
+            case "StreamHostEvent":
               break;
             case "UserBannedEvent":
               break;
             case "UserUnbannedEvent":
               break;
             case "PinnedMessageCreatedEvent":
-              break;
-            case "StreamHostEvent":
               break;
           }
           emitter.emit(parsedMessage.type, parsedMessage.data);
