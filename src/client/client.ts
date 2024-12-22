@@ -13,8 +13,9 @@ import type {
   Leaderboard,
 } from "../types/client";
 import type { MessageData } from "../types/events";
-import axios from "axios";
 import { validateAuthSettings } from "../utils/utils";
+
+import { createHeaders, makeRequest } from "../core/requestHelper";
 
 export const createClient = (
   channelName: string,
@@ -119,13 +120,15 @@ export const createClient = (
           switch (parsedMessage.type) {
             case "ChatMessage":
               if (mergedOptions.plainEmote) {
-                const messageData: MessageData = parsedMessage.data;
+                const messageData = parsedMessage.data as MessageData;
                 messageData.content = messageData.content.replace(
                   /\[emote:(\d+):(\w+)\]/g,
                   (_, __, emoteName) => emoteName,
                 );
               }
               break;
+
+            // TODO: Implement other event types
             case "Subscription":
               break;
             case "GiftedSubscriptions":
@@ -214,85 +217,39 @@ export const createClient = (
       throw new Error("Message content must be less than 500 characters");
     }
 
+    const headers = createHeaders({
+      bearerToken: clientBearerToken!,
+      xsrfToken: clientToken!,
+      cookies: clientCookies!,
+      channelSlug: channelInfo.slug,
+    });
+
     try {
-      const response = await axios.post(
+      const result = await makeRequest<{ success: boolean }>(
+        "post",
         `https://kick.com/api/v2/messages/send/${channelInfo.id}`,
+        headers,
         {
           content: messageContent,
           type: "message",
         },
-        {
-          headers: {
-            accept: "application/json, text/plain, */*",
-            authorization: `Bearer ${clientBearerToken}`,
-            "content-type": "application/json",
-            "x-xsrf-token": clientToken,
-            cookie: clientCookies,
-            Referer: `https://kick.com/${channelInfo.slug}`,
-          },
-        },
       );
 
-      if (response.status === 200) {
+      if (result) {
         console.log(`Message sent successfully: ${messageContent}`);
       } else {
-        console.error(`Failed to send message. Status: ${response.status}`);
+        console.error(`Failed to send message.`);
       }
     } catch (error) {
       console.error("Error sending message:", error);
     }
   };
 
-  const timeOut = async (targetUser: string, durationInMinutes: number) => {
-    if (!channelInfo) {
-      throw new Error("Channel info not available");
-    }
-
-    if (!durationInMinutes) {
-      throw new Error("Specify a duration in minutes");
-    }
-
-    if (durationInMinutes < 1) {
-      throw new Error("Duration must be more than 0 minutes");
-    }
-
-    checkAuth();
-
-    if (!targetUser) {
-      throw new Error("Specify a user to ban");
-    }
-
-    try {
-      const response = await axios.post(
-        `https://kick.com/api/v2/channels/${channelInfo.id}/bans`,
-        {
-          banned_username: targetUser,
-          duration: durationInMinutes,
-          permanent: false,
-        },
-        {
-          headers: {
-            accept: "application/json, text/plain, */*",
-            authorization: `Bearer ${clientBearerToken}`,
-            "content-type": "application/json",
-            "x-xsrf-token": clientToken,
-            cookie: clientCookies,
-            Referer: `https://kick.com/${channelInfo.slug}`,
-          },
-        },
-      );
-
-      if (response.status === 200) {
-        console.log(`User ${targetUser} timed out successfully`);
-      } else {
-        console.error(`Failed to time out user. Status: ${response.status}`);
-      }
-    } catch (error) {
-      console.error("Error sending message:", error);
-    }
-  };
-
-  const permanentBan = async (targetUser: string) => {
+  const banUser = async (
+    targetUser: string,
+    durationInMinutes?: number,
+    permanent: boolean = false,
+  ) => {
     if (!channelInfo) {
       throw new Error("Channel info not available");
     }
@@ -303,33 +260,55 @@ export const createClient = (
       throw new Error("Specify a user to ban");
     }
 
+    if (!permanent) {
+      if (!durationInMinutes) {
+        throw new Error("Specify a duration in minutes");
+      }
+
+      if (durationInMinutes < 1) {
+        throw new Error("Duration must be more than 0 minutes");
+      }
+    }
+
+    const headers = createHeaders({
+      bearerToken: clientBearerToken!,
+      xsrfToken: clientToken!,
+      cookies: clientCookies!,
+      channelSlug: channelInfo.slug,
+    });
+
     try {
-      const response = await axios.post(
+      const data = permanent
+        ? { banned_username: targetUser, permanent: true }
+        : {
+            banned_username: targetUser,
+            duration: durationInMinutes,
+            permanent: false,
+          };
+
+      const result = await makeRequest<{ success: boolean }>(
+        "post",
         `https://kick.com/api/v2/channels/${channelInfo.id}/bans`,
-        { banned_username: targetUser, permanent: true },
-        {
-          headers: {
-            accept: "application/json, text/plain, */*",
-            authorization: `Bearer ${clientBearerToken}`,
-            "content-type": "application/json",
-            "x-xsrf-token": clientToken,
-            cookie: clientCookies,
-            Referer: `https://kick.com/${channelInfo.slug}`,
-          },
-        },
+        headers,
+        data,
       );
 
-      if (response.status === 200) {
-        console.log(`User ${targetUser} banned successfully`);
+      if (result) {
+        console.log(
+          `User ${targetUser} ${permanent ? "banned" : "timed out"} successfully`,
+        );
       } else {
-        console.error(`Failed to ban user. Status: ${response.status}`);
+        console.error(`Failed to ${permanent ? "ban" : "time out"} user.`);
       }
     } catch (error) {
-      console.error("Error sending message:", error);
+      console.error(
+        `Error ${permanent ? "banning" : "timing out"} user:`,
+        error,
+      );
     }
   };
 
-  const unban = async (targetUser: string) => {
+  const unbanUser = async (targetUser: string) => {
     if (!channelInfo) {
       throw new Error("Channel info not available");
     }
@@ -340,28 +319,27 @@ export const createClient = (
       throw new Error("Specify a user to unban");
     }
 
+    const headers = createHeaders({
+      bearerToken: clientBearerToken!,
+      xsrfToken: clientToken!,
+      cookies: clientCookies!,
+      channelSlug: channelInfo.slug,
+    });
+
     try {
-      const response = await axios.delete(
+      const result = await makeRequest<{ success: boolean }>(
+        "delete",
         `https://kick.com/api/v2/channels/${channelInfo.id}/bans/${targetUser}`,
-        {
-          headers: {
-            accept: "application/json, text/plain, */*",
-            authorization: `Bearer ${clientBearerToken}`,
-            "content-type": "application/json",
-            "x-xsrf-token": clientToken,
-            cookie: clientCookies,
-            Referer: `https://kick.com/${channelInfo.slug}`,
-          },
-        },
+        headers,
       );
 
-      if (response.status === 200) {
+      if (result) {
         console.log(`User ${targetUser} unbanned successfully`);
       } else {
-        console.error(`Failed to unban user. Status: ${response.status}`);
+        console.error(`Failed to unban user.`);
       }
     } catch (error) {
-      console.error("Error sending message:", error);
+      console.error("Error unbanning user:", error);
     }
   };
 
@@ -376,28 +354,27 @@ export const createClient = (
       throw new Error("Specify a messageId to delete");
     }
 
+    const headers = createHeaders({
+      bearerToken: clientBearerToken!,
+      xsrfToken: clientToken!,
+      cookies: clientCookies!,
+      channelSlug: channelInfo.slug,
+    });
+
     try {
-      const response = await axios.delete(
+      const result = await makeRequest<{ success: boolean }>(
+        "delete",
         `https://kick.com/api/v2/channels/${channelInfo.id}/messages/${messageId}`,
-        {
-          headers: {
-            accept: "application/json, text/plain, */*",
-            authorization: `Bearer ${clientBearerToken}`,
-            "content-type": "application/json",
-            "x-xsrf-token": clientToken,
-            cookie: clientCookies,
-            Referer: `https://kick.com/${channelInfo.slug}`,
-          },
-        },
+        headers,
       );
 
-      if (response.status === 200) {
+      if (result) {
         console.log(`Message ${messageId} deleted successfully`);
       } else {
-        console.error(`Failed to delete message. Status: ${response.status}`);
+        console.error(`Failed to delete message.`);
       }
     } catch (error) {
-      console.error("Error sending message:", error);
+      console.error("Error deleting message:", error);
     }
   };
 
@@ -409,191 +386,118 @@ export const createClient = (
     checkAuth();
 
     if (mode !== "on" && mode !== "off") {
-      throw new Error("Invalid mode, must be 'on' or 'off'");
+      throw new Error("Invalid mode, must be either 'on' or 'off'");
     }
-    if (mode === "on" && durationInSeconds && durationInSeconds < 1) {
+
+    if (mode === "on" && (!durationInSeconds || durationInSeconds < 1)) {
       throw new Error(
         "Invalid duration, must be greater than 0 if mode is 'on'",
       );
     }
 
+    const headers = createHeaders({
+      bearerToken: clientBearerToken!,
+      xsrfToken: clientToken!,
+      cookies: clientCookies!,
+      channelSlug: channelInfo.slug,
+    });
+
     try {
-      if (mode === "off") {
-        const response = await await axios.put(
-          `https://kick.com/api/v2/channels/${channelInfo.slug}/chatroom`,
-          { slow_mode: false },
-          {
-            headers: {
-              accept: "application/json, text/plain, */*",
-              authorization: `Bearer ${clientBearerToken}`,
-              "content-type": "application/json",
-              "x-xsrf-token": clientToken,
-              cookie: clientCookies,
-              Referer: `https://kick.com/${channelInfo.slug}`,
-            },
-          },
-        );
+      const data =
+        mode === "off"
+          ? { slow_mode: false }
+          : { slow_mode: true, message_interval: durationInSeconds };
 
-        if (response.status === 200) {
-          console.log("Slow mode disabled successfully");
-        } else {
-          console.error(
-            `Failed to disable slow mode. Status: ${response.status}`,
-          );
-        }
+      const result = await makeRequest<{ success: boolean }>(
+        "put",
+        `https://kick.com/api/v2/channels/${channelInfo.slug}/chatroom`,
+        headers,
+        data,
+      );
+
+      if (result?.success) {
+        console.log(
+          mode === "off"
+            ? "Slow mode disabled successfully"
+            : `Slow mode enabled with ${durationInSeconds} second interval`,
+        );
       } else {
-        const response = await await axios.put(
-          `https://kick.com/api/v2/channels/${channelInfo.slug}/chatroom`,
-          { slow_mode: true, message_interval: durationInSeconds },
-          {
-            headers: {
-              accept: "application/json, text/plain, */*",
-              authorization: `Bearer ${clientBearerToken}`,
-              "content-type": "application/json",
-              "x-xsrf-token": clientToken,
-              cookie: clientCookies,
-              Referer: `https://kick.com/${channelInfo.slug}`,
-            },
-          },
+        console.error(
+          `Failed to ${mode === "off" ? "disable" : "enable"} slow mode.`,
         );
-
-        if (response.status === 200) {
-          console.log(
-            `Slow mode enabled with ${durationInSeconds} second interval`,
-          );
-        } else {
-          console.error(
-            `Failed to enable slow mode. Status: ${response.status}`,
-          );
-        }
       }
     } catch (error) {
-      console.error("Error sending message:", error);
+      console.error(
+        `Error ${mode === "off" ? "disabling" : "enabling"} slow mode:`,
+        error,
+      );
     }
   };
 
   const getPoll = async (targetChannel?: string) => {
-    if (targetChannel) {
-      try {
-        const response = await axios.get(
-          `https://kick.com/api/v2/channels/${targetChannel}/polls`,
-          {
-            headers: {
-              accept: "application/json, text/plain, */*",
-              authorization: `Bearer ${clientBearerToken}`,
-              "content-type": "application/json",
-              "x-xsrf-token": clientToken,
-              cookie: clientCookies,
-              Referer: `https://kick.com/${targetChannel}`,
-            },
-          },
-        );
+    const channel = targetChannel || channelName;
 
-        if (response.status === 200) {
-          console.log(
-            `Poll retrieved successfully for channel: ${targetChannel}`,
-          );
-          return response.data as Poll;
-        }
-      } catch (error) {
-        console.error(
-          `Error retrieving poll for channel ${targetChannel}:`,
-          error,
-        );
-        return null;
-      }
-    }
-    if (!channelInfo) {
+    if (!targetChannel && !channelInfo) {
       throw new Error("Channel info not available");
     }
 
+    const headers = createHeaders({
+      bearerToken: clientBearerToken!,
+      xsrfToken: clientToken!,
+      cookies: clientCookies!,
+      channelSlug: channel,
+    });
+
     try {
-      const response = await axios.get(
-        `https://kick.com/api/v2/channels/${channelName}/polls`,
-        {
-          headers: {
-            accept: "application/json, text/plain, */*",
-            authorization: `Bearer ${clientBearerToken}`,
-            "content-type": "application/json",
-            "x-xsrf-token": clientToken,
-            cookie: clientCookies,
-            Referer: `https://kick.com/${channelName}`,
-          },
-        },
+      const result = await makeRequest<Poll>(
+        "get",
+        `https://kick.com/api/v2/channels/${channel}/polls`,
+        headers,
       );
 
-      if (response.status === 200) {
-        console.log(`Poll retrieved successfully for current channel`);
-        return response.data as Poll;
+      if (result) {
+        console.log(`Poll retrieved successfully for channel: ${channel}`);
+        return result;
       }
     } catch (error) {
-      console.error("Error retrieving poll for current channel:", error);
-      return null;
+      console.error(`Error retrieving poll for channel ${channel}:`, error);
     }
 
     return null;
   };
 
   const getLeaderboards = async (targetChannel?: string) => {
-    if (targetChannel) {
-      try {
-        const response = await axios.get(
-          `https://kick.com/api/v2/channels/${targetChannel}/leaderboards`,
-          {
-            headers: {
-              accept: "application/json, text/plain, */*",
-              authorization: `Bearer ${clientBearerToken}`,
-              "content-type": "application/json",
-              "x-xsrf-token": clientToken,
-              cookie: clientCookies,
-              Referer: `https://kick.com/${targetChannel}`,
-            },
-          },
-        );
+    const channel = targetChannel || channelName;
 
-        if (response.status === 200) {
-          console.log(
-            `Leaderboards retrieved successfully for channel: ${targetChannel}`,
-          );
-          return response.data as Leaderboard;
-        }
-      } catch (error) {
-        console.error(
-          `Error retrieving leaderboards for channel ${targetChannel}:`,
-          error,
-        );
-        return null;
-      }
-    }
-    if (!channelInfo) {
+    if (!targetChannel && !channelInfo) {
       throw new Error("Channel info not available");
     }
 
+    const headers = createHeaders({
+      bearerToken: clientBearerToken!,
+      xsrfToken: clientToken!,
+      cookies: clientCookies!,
+      channelSlug: channel,
+    });
+
     try {
-      const response = await axios.get(
-        `https://kick.com/api/v2/channels/${channelName}/leaderboards`,
-        {
-          headers: {
-            accept: "application/json, text/plain, */*",
-            authorization: `Bearer ${clientBearerToken}`,
-            "content-type": "application/json",
-            "x-xsrf-token": clientToken,
-            cookie: clientCookies,
-            Referer: `https://kick.com/${channelName}`,
-          },
-        },
+      const result = await makeRequest<Leaderboard>(
+        "get",
+        `https://kick.com/api/v2/channels/${channel}/leaderboards`,
+        headers,
       );
 
-      if (response.status === 200) {
-        console.log(`Leaderboards retrieved successfully for current channel`);
-        return response.data as Leaderboard;
+      if (result) {
+        console.log(
+          `Leaderboards retrieved successfully for channel: ${channel}`,
+        );
+        return result;
       }
     } catch (error) {
       console.error(
-        "Error retrieving leaderboards for current channel:",
+        `Error retrieving leaderboards for channel ${channel}:`,
         error,
       );
-      return null;
     }
 
     return null;
@@ -607,9 +511,8 @@ export const createClient = (
     },
     vod,
     sendMessage,
-    timeOut,
-    permanentBan,
-    unban,
+    banUser,
+    unbanUser,
     deleteMessage,
     slowMode,
     getPoll,

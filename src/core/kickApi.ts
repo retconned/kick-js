@@ -3,21 +3,33 @@ import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import type { KickChannelInfo } from "../types/channels";
 import type { VideoInfo } from "../types/video";
 import { authenticator } from "otplib";
+import type { AuthenticationSettings } from "../types/client";
 
+/**
+ * Helper function to setup Puppeteer with Stealth Plugin
+ */
+const setupPuppeteer = async () => {
+  const puppeteerExtra = puppeteer.use(StealthPlugin());
+  const browser = await puppeteerExtra.launch({ headless: true });
+  const page = await browser.newPage();
+  return { browser, page };
+};
+
+/**
+ * Fetches channel data from Kick API
+ * @param channel - Channel name
+ * @returns KickChannelInfo or null
+ */
 export const getChannelData = async (
   channel: string,
 ): Promise<KickChannelInfo | null> => {
-  const puppeteerExtra = puppeteer.use(StealthPlugin());
-  const browser = await puppeteerExtra.launch({ headless: true });
-
-  const page = await browser.newPage();
+  const { browser, page } = await setupPuppeteer();
 
   try {
     const response = await page.goto(
       `https://kick.com/api/v2/channels/${channel}`,
     );
 
-    // Check if blocked by Cloudflare
     if (response?.status() === 403) {
       throw new Error(
         "Request blocked by Cloudflare protection. Please try again later.",
@@ -31,35 +43,33 @@ export const getChannelData = async (
       if (!bodyElement || !bodyElement.textContent) {
         throw new Error("Unable to fetch channel data");
       }
-
       return JSON.parse(bodyElement.textContent);
     });
 
-    await browser.close();
     return jsonContent;
   } catch (error) {
-    await browser.close();
-    if (error instanceof Error && error.message.includes("Cloudflare")) {
-      throw error; // Re-throw Cloudflare-specific error
-    }
     console.error("Error getting channel data:", error);
     return null;
+  } finally {
+    await browser.close();
   }
 };
 
+/**
+ * Fetches video data from Kick API
+ * @param video_id - Video ID
+ * @returns VideoInfo or null
+ */
 export const getVideoData = async (
   video_id: string,
 ): Promise<VideoInfo | null> => {
-  const puppeteerExtra = puppeteer.use(StealthPlugin());
-  const browser = await puppeteerExtra.launch({ headless: true });
-  const page = await browser.newPage();
+  const { browser, page } = await setupPuppeteer();
 
   try {
     const response = await page.goto(
       `https://kick.com/api/v1/video/${video_id}`,
     );
 
-    // Check if blocked by Cloudflare
     if (response?.status() === 403) {
       throw new Error(
         "Request blocked by Cloudflare protection. Please try again later.",
@@ -76,27 +86,32 @@ export const getVideoData = async (
       return JSON.parse(bodyElement.textContent);
     });
 
-    await browser.close();
     return jsonContent;
   } catch (error) {
-    await browser.close();
-    if (error instanceof Error && error.message.includes("Cloudflare")) {
-      throw error; // Re-throw Cloudflare-specific error
-    }
     console.error("Error getting video data:", error);
     return null;
+  } finally {
+    await browser.close();
   }
 };
 
+/**
+ * Authenticates a user and retrieves authentication tokens
+ * @param username - Username
+ * @param password - Password
+ * @param otp_secret - OTP Secret
+ * @returns Authentication tokens and status
+ */
 export const authentication = async ({
   username,
   password,
   otp_secret,
-}: {
-  username: string;
-  password: string;
-  otp_secret: string;
-}) => {
+}: AuthenticationSettings): Promise<{
+  bearerToken: string;
+  xsrfToken: string;
+  cookies: string;
+  isAuthenticated: boolean;
+}> => {
   let bearerToken = "";
   let xsrfToken = "";
   let cookieString = "";
@@ -210,8 +225,6 @@ export const authentication = async ({
 
     isAuthenticated = true;
 
-    await browser.close();
-
     return {
       bearerToken,
       xsrfToken,
@@ -219,7 +232,8 @@ export const authentication = async ({
       isAuthenticated,
     };
   } catch (error: any) {
-    await browser.close();
     throw error;
+  } finally {
+    await browser.close();
   }
 };
