@@ -23,8 +23,8 @@ client.on("ChatMessage", async (message: MessageData) => {
     const splitMessage = message.content.split(" ");
     const duration = splitMessage[1];
     if (duration) {
-      const durationNumber = parseInt(duration);
-      client.slowMode("on", durationNumber);
+      const durationInSeconds = parseInt(duration);
+      client.slowMode("on", durationInSeconds);
     }
   }
   if (message.content.match("!slowmode off")) {
@@ -33,9 +33,13 @@ client.on("ChatMessage", async (message: MessageData) => {
 
   if (message.content.match("!ban")) {
     const splitMessage = message.content.split(" ");
-    const bannedUser = splitMessage[1];
-    if (bannedUser) {
-      client.permanentBan(bannedUser);
+    const targetUser = splitMessage[1];
+    const duration = splitMessage[2];
+    if (targetUser && duration) {
+      client.banUser(targetUser, parseInt(duration));
+    }
+    if (targetUser && duration && duration === "9999") {
+      client.banUser(targetUser, 0, true);
     }
   }
 });
@@ -50,9 +54,24 @@ const { title, duration, thumbnail, views } = await client.vod("your-video-id");
 // to get the current poll in a channel in the channel the bot is in
 const poll = await client.getPoll();
 // or you can pass a specific channel to get the poll in that channel.
-// example: const poll = await client.getPoll("xqc");
+// example:
+const channelPoll = await client.getPoll("xqc");
 
 // get leaderboards for the channel the bot is in
 const leaderboards = await client.getLeaderboards();
 // or you can pass a specific channel to get the leaderboards in that channel.
-// example: const leaderboards = await client.getLeaderboards("xqc");
+
+// example:
+const channelLeaderboards = await client.getLeaderboards("xqc");
+
+// permanent ban a user
+client.banUser("user-to-ban", 0, true);
+
+// temporary ban a user for 10 minutes
+client.banUser("user-to-ban", 10);
+
+// unban a user
+client.unbanUser("user-to-unban");
+
+// delete a message
+client.deleteMessage("message-id");

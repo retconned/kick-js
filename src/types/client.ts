@@ -35,7 +35,11 @@ export interface KickClient {
     tag: string;
   } | null;
   sendMessage: (messageContent: string) => Promise<void>;
-  banUser: (targetUser: string) => Promise<void>;
+  banUser: (
+    targetUser: string,
+    durationInMinutes?: number,
+    permanent?: boolean,
+  ) => Promise<void>;
   unbanUser: (targetUser: string) => Promise<void>;
   deleteMessage: (messageId: string) => Promise<void>;
   slowMode: (mode: "on" | "off", durationInSeconds?: number) => Promise<void>;
