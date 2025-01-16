@@ -141,17 +141,18 @@ export const authentication = async ({
     request.continue();
   });
 
+  const selectorTimeout = 6000;
   try {
     await page.goto("https://kick.com/");
     await page.waitForSelector("nav > div:nth-child(3) > button:first-child", {
       visible: true,
-      timeout: 5000,
+      timeout: selectorTimeout,
     });
     await page.click("nav > div:nth-child(3) > button:first-child");
 
     await page.waitForSelector('input[name="emailOrUsername"]', {
       visible: true,
-      timeout: 5000,
+      timeout: selectorTimeout,
     });
 
     await page.type('input[name="emailOrUsername"]', username, { delay: 100 });
@@ -168,7 +169,7 @@ export const authentication = async ({
             document.body.textContent?.includes("Verify 2FA Code");
           return element || !verifyText;
         },
-        { timeout: 5000 },
+        { timeout: selectorTimeout },
       );
 
       const requires2FA = await page.evaluate(() => {
