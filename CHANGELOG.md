@@ -1,5 +1,11 @@
 # @retconned/kickjs
 
+## 0.4.4
+
+### Patch Changes
+
+- 26bed3d: fixes div timeout
+
 ## 0.4.3
 
 ### Patch Changes
