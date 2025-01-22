@@ -205,8 +205,15 @@ export const authentication = async ({
       xsrfToken = xsrfTokenCookie;
     }
 
-    if (!bearerToken || !xsrfToken || !cookieString) {
-      throw new Error("Failed to capture authentication tokens");
+    if (!cookieString || cookieString === "") {
+      throw new Error("Failed to capture cookies");
+    }
+    if (!bearerToken || bearerToken === "") {
+      throw new Error("Failed to capture bearer token");
+    }
+
+    if (!xsrfToken || xsrfToken === "") {
+      throw new Error("Failed to capture xsrf token");
     }
 
     isAuthenticated = true;
