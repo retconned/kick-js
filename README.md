@@ -33,11 +33,23 @@ const client = createClient("xqc", { logger: true, readOnly: true });
 // readOnly: true will make the client only read messages from the chat, and disable all other authenticated actions.
 
 client.login({
-  username: "xqc",
-  password: "bigschnozer420",
-  otp_secret: "your-2fa-secret",
+  type: "login",
+  credentials: {
+    username: "xqc",
+    password: "bigschnozer420",
+    otp_secret: "your-2fa-secret",
+  },
 });
 // to get your OTP secret, you need to go to https://kick.com/settings/security and enable Two-Factor Authentication and copy the secret from there
+
+// you can also authenticate using tokens obtained from the kick website directly by switching the type to 'tokens'
+client.login({
+  type: "tokens",
+  credentials: {
+    bearerToken: process.env.BEARER_TOKEN,
+    cookies: process.env.COOKIES,
+  },
+});
 
 client.on("ready", () => {
   console.log(`Bot ready & logged into ${client.user?.tag}!`);
