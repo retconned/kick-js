@@ -1,5 +1,11 @@
 # @retconned/kickjs
 
+## 0.5.0
+
+### Minor Changes
+
+- 3d46ec4: adds token auth, fixes sending messages
+
 ## 0.4.5
 
 ### Patch Changes
