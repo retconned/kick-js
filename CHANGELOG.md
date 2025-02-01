@@ -1,5 +1,11 @@
 # @retconned/kickjs
 
+## 0.5.1
+
+### Patch Changes
+
+- ac3e959: fixes readme
+
 ## 0.5.0
 
 ### Minor Changes
