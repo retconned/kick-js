@@ -44,16 +44,84 @@ export interface ChatMessage {
   };
 }
 
-// these are not implemented yet
 export interface Subscription {
-  id: string;
-  user_id: number;
+  chatroom_id: number;
   username: string;
-  // Add more properties as needed
+  months: number;
 }
 
-export interface RaidEvent {
-  raider_username: string;
-  viewer_count: number;
-  // Add more properties as needed
+export interface GiftedSubscriptionsEvent {
+  chatroom_id: number;
+  gifted_usernames: string[];
+  gifter_username: string;
+}
+
+export interface StreamHostEvent {
+  chatroom_id: number;
+  optional_message: string;
+  number_viewers: number;
+  host_username: string;
+}
+
+export interface MessageDeletedEvent {
+  id: string;
+  message: {
+    id: string;
+  };
+}
+
+export interface UserBannedEvent {
+  id: string;
+  user: {
+    id: number;
+    username: string;
+    slug: string;
+  };
+
+  banned_by: {
+    id: number;
+    username: string;
+    slug: string;
+  };
+
+  expires_at?: Date;
+}
+
+export interface UserUnbannedEvent {
+  id: string;
+  user: {
+    id: number;
+    username: string;
+    slug: string;
+  };
+  unbanned_by: {
+    id: number;
+    username: string;
+    slug: string;
+  };
+}
+
+export interface PinnedMessageCreatedEvent {
+  message: {
+    id: string;
+    chatroom_id: number;
+    content: string;
+    type: string;
+    created_at: Date;
+    sender: {
+      id: number;
+      username: string;
+      slug: string;
+      identity: {
+        color: string;
+        badges: Array<{
+          type: string;
+          text: string;
+          count?: number;
+        }>;
+      };
+    };
+    metadata: null;
+  };
+  duration: string;
 }

@@ -1,11 +1,24 @@
 import { createClient, type MessageData } from "@retconned/kick-js";
+import "dotenv/config";
 
-const client = createClient("xqc", { logger: true });
+const client = createClient("xqc", { logger: true, readOnly: false });
+
+// client.login({
+//   type: "login",
+//   credentials: {
+//     username: process.env.USERNAME!,
+//     password: process.env.PASSWORD!,
+//     otp_secret: process.env.OTP_SECRET!,
+//   },
+// });
 
 client.login({
-  username: process.env.USERNAME!,
-  password: process.env.PASSWORD!,
-  otp_secret: process.env.OTP_SECRET!,
+  type: "tokens",
+  credentials: {
+    bearerToken: process.env.BEARER_TOKEN!,
+    xsrfToken: process.env.XSRF_TOKEN!,
+    cookies: process.env.COOKIES!,
+  },
 });
 
 client.on("ready", () => {
@@ -16,27 +29,19 @@ client.on("ChatMessage", async (message: MessageData) => {
   console.log(`${message.sender.username}: ${message.content}`);
 
   if (message.content.match("!ping")) {
-    client.sendMessage("pong");
+    client.sendMessage(Math.random().toString(36).substring(7));
   }
 
   if (message.content.match("!slowmode on")) {
     const splitMessage = message.content.split(" ");
     const duration = splitMessage[1];
     if (duration) {
-      const durationNumber = parseInt(duration);
-      client.slowMode("on", durationNumber);
+      const durationInSeconds = parseInt(duration);
+      client.slowMode("on", durationInSeconds);
     }
   }
   if (message.content.match("!slowmode off")) {
     client.slowMode("off");
-  }
-
-  if (message.content.match("!ban")) {
-    const splitMessage = message.content.split(" ");
-    const bannedUser = splitMessage[1];
-    if (bannedUser) {
-      client.permanentBan(bannedUser);
-    }
   }
 });
 

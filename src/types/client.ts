@@ -28,16 +28,19 @@ export interface Video {
 export interface KickClient {
   on: (event: string, listener: (...args: any[]) => void) => void;
   vod: (video_id: string) => Promise<Video>;
-  login: (credentials: AuthenticationSettings) => Promise<boolean>;
+  login: (credentials: LoginOptions) => Promise<boolean>;
   user: {
     id: number;
     username: string;
     tag: string;
   } | null;
   sendMessage: (messageContent: string) => Promise<void>;
-  timeOut: (targetUser: string, durationInMinutes: number) => Promise<void>;
-  permanentBan: (targetUser: string) => Promise<void>;
-  unban: (targetUser: string) => Promise<void>;
+  banUser: (
+    targetUser: string,
+    durationInMinutes?: number,
+    permanent?: boolean,
+  ) => Promise<void>;
+  unbanUser: (targetUser: string) => Promise<void>;
   deleteMessage: (messageId: string) => Promise<void>;
   slowMode: (mode: "on" | "off", durationInSeconds?: number) => Promise<void>;
   getPoll: (targetChannel?: string) => Promise<Poll | null>;
@@ -49,6 +52,21 @@ export interface AuthenticationSettings {
   password: string;
   otp_secret: string;
 }
+
+type LoginCredentials = {
+  username: string;
+  password: string;
+  otp_secret: string;
+};
+
+type TokenCredentials = {
+  bearerToken: string;
+  xsrfToken: string;
+  cookies: string;
+};
+export type LoginOptions =
+  | { type: "login"; credentials: LoginCredentials }
+  | { type: "tokens"; credentials: TokenCredentials };
 
 export type Poll = {
   status: {
