@@ -11,9 +11,10 @@ import type {
   AuthenticationSettings,
   Poll,
   Leaderboard,
+  LoginOptions,
 } from "../types/client";
 import type { MessageData } from "../types/events";
-import { validateAuthSettings } from "../utils/utils";
+import { validateCredentials } from "../utils/utils";
 
 import { createHeaders, makeRequest } from "../core/requestHelper";
 
@@ -43,40 +44,78 @@ export const createClient = (
     if (!isLoggedIn) {
       throw new Error("Authentication required. Please login first.");
     }
-    if (!clientBearerToken || !clientToken || !clientCookies) {
-      throw new Error("Missing authentication tokens");
+    if (!clientBearerToken) {
+      throw new Error("Missing bearer token");
+    }
+
+    if (!clientCookies) {
+      throw new Error("Missing cookies");
     }
   };
 
-  const login = async (credentials: AuthenticationSettings) => {
+  const login = async (options: LoginOptions) => {
+    const { type, credentials } = options;
+
     try {
-      validateAuthSettings(credentials);
+      switch (type) {
+        case "login":
+          if (!credentials) {
+            throw new Error("Credentials are required for login");
+          }
+          validateCredentials(options);
 
-      if (mergedOptions.logger) {
-        console.log("Starting authentication process...");
+          if (mergedOptions.logger) {
+            console.log("Starting authentication process with login ...");
+          }
+
+          const { bearerToken, xsrfToken, cookies, isAuthenticated } =
+            await authentication({
+              username: credentials.username,
+              password: credentials.password,
+              otp_secret: credentials.otp_secret,
+            });
+
+          if (mergedOptions.logger) {
+            console.log("Authentication tokens received, validating...");
+          }
+
+          clientBearerToken = bearerToken;
+          clientToken = xsrfToken;
+          clientCookies = cookies;
+          isLoggedIn = isAuthenticated;
+
+          if (!isAuthenticated) {
+            throw new Error("Authentication failed");
+          }
+
+          if (mergedOptions.logger) {
+            console.log("Authentication successful, initializing client...");
+          }
+
+          await initialize();
+          break;
+
+        case "tokens":
+          if (!credentials) {
+            throw new Error("Tokens are required for login");
+          }
+
+          if (mergedOptions.logger) {
+            console.log("Starting authentication process with tokens ...");
+          }
+
+          clientBearerToken = credentials.bearerToken;
+          clientToken = credentials.xsrfToken;
+          clientCookies = credentials.cookies;
+
+          isLoggedIn = true;
+
+          await initialize();
+          break;
+        default:
+          throw new Error("Invalid authentication type");
       }
 
-      const { bearerToken, xsrfToken, cookies, isAuthenticated } =
-        await authentication(credentials);
-
-      if (mergedOptions.logger) {
-        console.log("Authentication tokens received, validating...");
-      }
-
-      clientBearerToken = bearerToken;
-      clientToken = xsrfToken;
-      clientCookies = cookies;
-      isLoggedIn = isAuthenticated;
-
-      if (!isAuthenticated) {
-        throw new Error("Authentication failed");
-      }
-
-      if (mergedOptions.logger) {
-        console.log("Authentication successful, initializing client...");
-      }
-
-      await initialize(); // Initialize after successful login
       return true;
     } catch (error) {
       console.error("Login failed:", error);
@@ -86,7 +125,7 @@ export const createClient = (
 
   const initialize = async () => {
     try {
-      if (!mergedOptions.readOnly && !isLoggedIn) {
+      if (mergedOptions.readOnly === false && !isLoggedIn) {
         throw new Error("Authentication required. Please login first.");
       }
 
@@ -127,8 +166,6 @@ export const createClient = (
                 );
               }
               break;
-
-            // TODO: Implement other event types
             case "Subscription":
               break;
             case "GiftedSubscriptions":
@@ -163,8 +200,7 @@ export const createClient = (
     }
   };
 
-  // Only initialize immediately if readOnly is true
-  if (mergedOptions.readOnly) {
+  if (mergedOptions.readOnly === true) {
     void initialize();
   }
 
@@ -211,38 +247,50 @@ export const createClient = (
       throw new Error("Channel info not available");
     }
 
-    checkAuth();
-
     if (messageContent.length > 500) {
       throw new Error("Message content must be less than 500 characters");
     }
 
-    const headers = createHeaders({
-      bearerToken: clientBearerToken!,
-      xsrfToken: clientToken!,
-      cookies: clientCookies!,
-      channelSlug: channelInfo.slug,
-    });
-
-    try {
-      const result = await makeRequest<{ success: boolean }>(
-        "post",
-        `https://kick.com/api/v2/messages/send/${channelInfo.id}`,
-        headers,
-        {
-          content: messageContent,
-          type: "message",
-        },
-      );
-
-      if (result) {
-        console.log(`Message sent successfully: ${messageContent}`);
-      } else {
-        console.error(`Failed to send message.`);
-      }
-    } catch (error) {
-      console.error("Error sending message:", error);
+    if (!clientCookies) {
+      throw new Error("WebSocket connection not established");
     }
+    if (!clientBearerToken) {
+      throw new Error("WebSocket connection not established");
+    }
+    // this is a temp thing till i figure out whats the axios issue
+
+    const res = fetch(
+      `https://kick.com/api/v2/messages/send/${channelInfo.id}`,
+      {
+        headers: {
+          accept: "application/json",
+          "accept-language": "en-US,en;q=0.9",
+          authorization: `Bearer ${clientBearerToken}`,
+          "cache-control": "max-age=0",
+          cluster: "v2",
+          "content-type": "application/json",
+          priority: "u=1, i",
+          "sec-ch-ua": '"Not A(Brand";v="8", "Chromium";v="132"',
+          "sec-ch-ua-arch": '"arm"',
+          "sec-ch-ua-bitness": '"64"',
+          "sec-ch-ua-full-version": '"132.0.6834.111"',
+          "sec-ch-ua-full-version-list":
+            '"Not A(Brand";v="8.0.0.0", "Chromium";v="132.0.6834.111"',
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-model": '""',
+          "sec-ch-ua-platform": '"macOS"',
+          "sec-ch-ua-platform-version": '"15.0.1"',
+          "sec-fetch-dest": "empty",
+          "sec-fetch-mode": "cors",
+          "sec-fetch-site": "same-origin",
+          cookie: clientCookies,
+          Referer: `https://kick.com/${channelInfo.slug}`,
+          "Referrer-Policy": "strict-origin-when-cross-origin",
+        },
+        body: `{"content":"${messageContent}","type":"message"}`,
+        method: "POST",
+      },
+    );
   };
 
   const banUser = async (

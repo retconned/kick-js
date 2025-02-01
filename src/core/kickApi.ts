@@ -5,9 +5,6 @@ import type { VideoInfo } from "../types/video";
 import { authenticator } from "otplib";
 import type { AuthenticationSettings } from "../types/client";
 
-/**
- * Helper function to setup Puppeteer with Stealth Plugin
- */
 const setupPuppeteer = async () => {
   const puppeteerExtra = puppeteer.use(StealthPlugin());
   const browser = await puppeteerExtra.launch({ headless: true });
@@ -15,11 +12,6 @@ const setupPuppeteer = async () => {
   return { browser, page };
 };
 
-/**
- * Fetches channel data from Kick API
- * @param channel - Channel name
- * @returns KickChannelInfo or null
- */
 export const getChannelData = async (
   channel: string,
 ): Promise<KickChannelInfo | null> => {
@@ -55,11 +47,6 @@ export const getChannelData = async (
   }
 };
 
-/**
- * Fetches video data from Kick API
- * @param video_id - Video ID
- * @returns VideoInfo or null
- */
 export const getVideoData = async (
   video_id: string,
 ): Promise<VideoInfo | null> => {
@@ -95,13 +82,6 @@ export const getVideoData = async (
   }
 };
 
-/**
- * Authenticates a user and retrieves authentication tokens
- * @param username - Username
- * @param password - Password
- * @param otp_secret - OTP Secret
- * @returns Authentication tokens and status
- */
 export const authentication = async ({
   username,
   password,
@@ -219,8 +199,14 @@ export const authentication = async ({
       xsrfToken = xsrfTokenCookie;
     }
 
-    if (!bearerToken || !xsrfToken || !cookieString) {
-      throw new Error("Failed to capture authentication tokens");
+    if (!cookieString || cookieString === "") {
+      throw new Error("Failed to capture cookies");
+    }
+    if (!bearerToken || bearerToken === "") {
+      throw new Error("Failed to capture bearer token");
+    }
+    if (!xsrfToken || xsrfToken === "") {
+      throw new Error("Failed to capture xsrf token");
     }
 
     isAuthenticated = true;

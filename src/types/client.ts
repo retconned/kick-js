@@ -28,7 +28,7 @@ export interface Video {
 export interface KickClient {
   on: (event: string, listener: (...args: any[]) => void) => void;
   vod: (video_id: string) => Promise<Video>;
-  login: (credentials: AuthenticationSettings) => Promise<boolean>;
+  login: (credentials: LoginOptions) => Promise<boolean>;
   user: {
     id: number;
     username: string;
@@ -52,6 +52,21 @@ export interface AuthenticationSettings {
   password: string;
   otp_secret: string;
 }
+
+type LoginCredentials = {
+  username: string;
+  password: string;
+  otp_secret: string;
+};
+
+type TokenCredentials = {
+  bearerToken: string;
+  xsrfToken: string;
+  cookies: string;
+};
+export type LoginOptions =
+  | { type: "login"; credentials: LoginCredentials }
+  | { type: "tokens"; credentials: TokenCredentials };
 
 export type Poll = {
   status: {
