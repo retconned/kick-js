@@ -1,5 +1,11 @@
 # @retconned/kickjs
 
+## 0.5.2
+
+### Patch Changes
+
+- f0de3f0: fixes sendMessages and viewport issues
+
 ## 0.5.1
 
 ### Patch Changes
