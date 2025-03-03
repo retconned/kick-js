@@ -260,7 +260,7 @@ export const createClient = (
     // this is a temp thing till i figure out whats the axios issue
 
     const res = fetch(
-      `https://kick.com/api/v2/messages/send/${channelInfo.id}`,
+      `https://kick.com/api/v2/messages/send/${channelInfo.chatroom.id}`,
       {
         headers: {
           accept: "application/json",
