@@ -7,7 +7,11 @@ import type { AuthenticationSettings } from "../types/client";
 
 const setupPuppeteer = async () => {
   const puppeteerExtra = puppeteer.use(StealthPlugin());
-  const browser = await puppeteerExtra.launch({ headless: true });
+  const browser = await puppeteerExtra.launch({
+    headless: true,
+    defaultViewport: null,
+    args: ["--start-maximized"],
+  });
   const page = await browser.newPage();
   return { browser, page };
 };
