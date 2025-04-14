@@ -1,5 +1,11 @@
 # @retconned/kickjs
 
+## 0.5.3
+
+### Patch Changes
+
+- fda33e9: adds xsrf to sendMessage headers
+
 ## 0.5.2
 
 ### Patch Changes
