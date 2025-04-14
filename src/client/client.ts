@@ -252,10 +252,13 @@ export const createClient = (
     }
 
     if (!clientCookies) {
-      throw new Error("WebSocket connection not established");
+      throw new Error("Cookies missing");
     }
     if (!clientBearerToken) {
-      throw new Error("WebSocket connection not established");
+      throw new Error("Bearer token missing");
+    }
+    if (!clientToken) {
+      throw new Error("XSRF token missing");
     }
     // this is a temp thing till i figure out whats the axios issue
 
@@ -266,6 +269,7 @@ export const createClient = (
           accept: "application/json",
           "accept-language": "en-US,en;q=0.9",
           authorization: `Bearer ${clientBearerToken}`,
+          "x-CSRF-token": clientToken,
           "cache-control": "max-age=0",
           cluster: "v2",
           "content-type": "application/json",
