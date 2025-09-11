@@ -1,5 +1,11 @@
 # @retconned/kickjs
 
+## 0.5.4
+
+### Patch Changes
+
+- 0741467: updates ws url version
+
 ## 0.5.3
 
 ### Patch Changes
