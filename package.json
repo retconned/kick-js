@@ -34,10 +34,12 @@
     "lint:ts": "tsc",
     "lint:check": "eslint \"src/**/*.{ts,js}\"",
     "lint:fix": "eslint --fix \"src/**/*.{ts,js}\"",
-    "ci": "npm run build && npm run format:check && npm run check-exports && npm run lint:ts",
     "check-exports": "attw --pack . --ignore-rules=cjs-resolves-to-esm",
-    "test": "vitest run",
+
     "dev": "vitest",
+
+    "ci": "npm run format:check && npm run lint:check && npm run lint:ts && npm run check-exports && npm run build",
+
     "release:version": "changeset version",
     "release:publish": "changeset publish",
     "release:local": "npm run release:version && npm run release:publish",
