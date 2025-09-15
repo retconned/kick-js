@@ -38,8 +38,10 @@
     "check-exports": "attw --pack . --ignore-rules=cjs-resolves-to-esm",
     "test": "vitest run",
     "dev": "vitest",
-    "local:release": "changeset version && changeset publish",
-    "local:pack": "npm run build && rm -rf release && mkdir release && pnpm pack --pack-destination release",
+    "release:version": "changeset version",
+    "release:publish": "changeset publish",
+    "release:local": "npm run release:version && npm run release:publish",
+
     "prepublishOnly": "npm run ci"
   },
   "exports": {
