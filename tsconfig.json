@@ -24,5 +24,6 @@
 
     /* This is cause tsup is enabled */
     "noEmit": true
-  }
+  },
+  "exclude": ["node_modules", "examples", "dist"]
 }
