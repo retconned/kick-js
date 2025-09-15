@@ -1,4 +1,4 @@
-import WebSocket from "ws";
+import type WebSocket from "ws";
 import EventEmitter from "events";
 import { authentication, getChannelData, getVideoData } from "../core/kickApi";
 import { createWebSocket } from "../core/websocket";
@@ -8,7 +8,6 @@ import type { VideoInfo } from "../types/video";
 import type {
   KickClient,
   ClientOptions,
-  AuthenticationSettings,
   Poll,
   Leaderboard,
   LoginOptions,
@@ -262,39 +261,36 @@ export const createClient = (
     }
     // this is a temp thing till i figure out whats the axios issue
 
-    const res = fetch(
-      `https://kick.com/api/v2/messages/send/${channelInfo.chatroom.id}`,
-      {
-        headers: {
-          accept: "application/json",
-          "accept-language": "en-US,en;q=0.9",
-          authorization: `Bearer ${clientBearerToken}`,
-          "x-CSRF-token": clientToken,
-          "cache-control": "max-age=0",
-          cluster: "v2",
-          "content-type": "application/json",
-          priority: "u=1, i",
-          "sec-ch-ua": '"Not A(Brand";v="8", "Chromium";v="132"',
-          "sec-ch-ua-arch": '"arm"',
-          "sec-ch-ua-bitness": '"64"',
-          "sec-ch-ua-full-version": '"132.0.6834.111"',
-          "sec-ch-ua-full-version-list":
-            '"Not A(Brand";v="8.0.0.0", "Chromium";v="132.0.6834.111"',
-          "sec-ch-ua-mobile": "?0",
-          "sec-ch-ua-model": '""',
-          "sec-ch-ua-platform": '"macOS"',
-          "sec-ch-ua-platform-version": '"15.0.1"',
-          "sec-fetch-dest": "empty",
-          "sec-fetch-mode": "cors",
-          "sec-fetch-site": "same-origin",
-          cookie: clientCookies,
-          Referer: `https://kick.com/${channelInfo.slug}`,
-          "Referrer-Policy": "strict-origin-when-cross-origin",
-        },
-        body: `{"content":"${messageContent}","type":"message"}`,
-        method: "POST",
+    fetch(`https://kick.com/api/v2/messages/send/${channelInfo.chatroom.id}`, {
+      headers: {
+        accept: "application/json",
+        "accept-language": "en-US,en;q=0.9",
+        authorization: `Bearer ${clientBearerToken}`,
+        "x-CSRF-token": clientToken,
+        "cache-control": "max-age=0",
+        cluster: "v2",
+        "content-type": "application/json",
+        priority: "u=1, i",
+        "sec-ch-ua": '"Not A(Brand";v="8", "Chromium";v="132"',
+        "sec-ch-ua-arch": '"arm"',
+        "sec-ch-ua-bitness": '"64"',
+        "sec-ch-ua-full-version": '"132.0.6834.111"',
+        "sec-ch-ua-full-version-list":
+          '"Not A(Brand";v="8.0.0.0", "Chromium";v="132.0.6834.111"',
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-model": '""',
+        "sec-ch-ua-platform": '"macOS"',
+        "sec-ch-ua-platform-version": '"15.0.1"',
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "same-origin",
+        cookie: clientCookies,
+        Referer: `https://kick.com/${channelInfo.slug}`,
+        "Referrer-Policy": "strict-origin-when-cross-origin",
       },
-    );
+      body: `{"content":"${messageContent}","type":"message"}`,
+      method: "POST",
+    });
   };
 
   const banUser = async (

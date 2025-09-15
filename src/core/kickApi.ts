@@ -108,7 +108,7 @@ export const authentication = async ({
   });
 
   const page = await browser.newPage();
-  let requestData: any[] = [];
+  const requestData: any[] = [];
 
   // Enable request interception
   await page.setRequestInterception(true);

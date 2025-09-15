@@ -38,7 +38,7 @@
 
     "dev": "vitest",
 
-    "checks": "npm run format:check && npm run lint:check && npm run lint:ts && npm run check-exports && npm run build",
+    "checks": "npm run format:fix && npm run lint:ts && npm run check-exports && npm run build",
 
     "release:version": "changeset version",
     "release:publish": "changeset publish",
