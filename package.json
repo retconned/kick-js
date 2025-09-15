@@ -38,13 +38,13 @@
 
     "dev": "vitest",
 
-    "ci": "npm run format:check && npm run lint:check && npm run lint:ts && npm run check-exports && npm run build",
+    "checks": "npm run format:check && npm run lint:check && npm run lint:ts && npm run check-exports && npm run build",
 
     "release:version": "changeset version",
     "release:publish": "changeset publish",
     "release:local": "npm run release:version && npm run release:publish",
 
-    "prepublishOnly": "npm run ci"
+    "prepublishOnly": "npm run checks"
   },
   "exports": {
     "./package.json": "./package.json",
